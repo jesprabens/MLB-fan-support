@@ -1,0 +1,102 @@
+---
+title: "Model Building"
+author: "Jake Esprabens"
+date: "7/8/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(fable)
+library(lubridate)
+library(tsibble)
+library(feasts)
+library(zoo)
+```
+
+## Loading Data
+```{r}
+gt <- read.csv("MLB_Google_Trends.csv")
+ar <- read.csv("MLB_Attendance_and_Revenue.csv")
+po <- read.csv("MLB_Preseason_Odds.csv")
+tp <- read.csv("MLB_Team_Performance.csv")
+tms <- read.csv("MLB_TV_Market_Size.csv")
+```
+
+## Cleaning Google Trends Data
+```{r}
+# cleaning google trends data by replacing <1 with 0 and making hits numeric
+# also converting to tsibble
+clean_gt <- gt %>%
+  mutate(date = as.character(date),
+         year = as.character(year(date)),
+         hits = str_replace(hits, "<1","0"),
+         hits = as.numeric(hits)) %>%
+  rename(team = teams) %>%
+  select(-X)
+```
+
+## Cleaning Preseason Odds Data
+```{r}
+clean_po <- po %>%
+  pivot_longer(cols = 2:18, names_to = "year") %>%
+  mutate(year = substring(year, 2)) %>%
+  rename(team = Team,
+         odds = value)
+```
+
+## Cleaning TV Market Size
+```{r}
+clean_tms <- tms %>%
+  mutate_all(na_if,"") %>%
+  mutate(TVMarketSize = as.numeric(gsub(",","",TVMarketSize))) %>%
+  rename(team = Team)
+```
+
+## Cleaning Attendance and Revenue dataset 
+```{r}
+clean_ar <- ar %>%
+  select(Year, Tm, Attendance, Attend.G, Est..Payroll) %>%
+  mutate(Attendance = as.numeric(gsub(",","",Attendance)),
+         Attend.G = as.numeric(gsub(",","",Attend.G)),
+         Est..Payroll = as.numeric(str_replace_all(Est..Payroll, "[^[:alnum:]]", ""))) %>%
+  rename(year = Year,
+         attendance = Attendance,
+         att_per_game = Attend.G,
+         payroll = Est..Payroll)
+```
+
+## Cleaning Team Performance
+```{r}
+clean_tp <- tp %>%
+  mutate(team = name, 
+         year = yearID,
+         team = (gsub("Anaheim Angels","Los Angeles Angels of Anaheim", team)),
+         team = (gsub("Florida Marlins","Miami Marlins", team))) %>%
+  select(year, team, W, L, DivWin, WCWin, LgWin, WSWin, attendance) %>%
+  arrange(year, team)
+```
+
+## Combining Datasets
+```{r}
+combined <- left_join(clean_gt, clean_po, by = c("team", "year")) %>%
+  mutate(date = yearmonth(date)) %>%
+  select(-year) %>%
+  as_tsibble(key = team, index = date)
+```
+
+# Building Model
+```{r}
+model_test <- combined %>%
+  filter(team =="Chicago Cubs") %>%
+  model(
+    snaive = SNAIVE(hits),
+    ets = ETS(hits),
+    arima = ARIMA(hits)
+  )
+```
+

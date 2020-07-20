@@ -37,7 +37,8 @@ clean_gt <- gt %>%
          hits = str_replace(hits, "<1","0"),
          hits = as.numeric(hits)) %>%
   rename(team = teams) %>%
-  select(-X)
+  select(-X) %>%
+  arrange(team)
 ```
 
 ## Cleaning Preseason Odds Data
@@ -56,20 +57,6 @@ clean_tms <- tms %>%
   mutate(TVMarketSize = as.numeric(gsub(",","",TVMarketSize))) %>%
   rename(team = Team)
 ```
-
-## Cleaning Attendance and Revenue dataset 
-```{r}
-clean_ar <- ar %>%
-  select(Year, Tm, Attendance, Attend.G, Est..Payroll) %>%
-  mutate(Attendance = as.numeric(gsub(",","",Attendance)),
-         Attend.G = as.numeric(gsub(",","",Attend.G)),
-         Est..Payroll = as.numeric(str_replace_all(Est..Payroll, "[^[:alnum:]]", ""))) %>%
-  rename(year = Year,
-         attendance = Attendance,
-         att_per_game = Attend.G,
-         payroll = Est..Payroll)
-```
-
 ## Cleaning Team Performance
 ```{r}
 clean_tp <- tp %>%
@@ -81,12 +68,28 @@ clean_tp <- tp %>%
   arrange(year, team)
 ```
 
+## Cleaning Attendance and Revenue dataset 
+```{r}
+clean_ar <- ar %>%
+  mutate(attendance = as.numeric(gsub(",","",Attendance)),
+         att_per_game = as.numeric(gsub(",","",Attend.G)),
+         payroll = as.numeric(str_replace_all(Est..Payroll, "[^[:alnum:]]", ""))) %>%
+  rename(year = Year) %>%
+  select(year, Tm, attendance, att_per_game, payroll)
+
+clean_ar <- left_join(clean_ar, clean_tp, by = c("year", "attendance")) %>%
+  select(year, team, attendance, att_per_game, payroll)
+```
+
+
 ## Combining Datasets
 ```{r}
 combined <- left_join(clean_gt, clean_po, by = c("team", "year")) %>%
   mutate(date = yearmonth(date)) %>%
   select(-year) %>%
   as_tsibble(key = team, index = date)
+
+combined
 ```
 
 # Building Model
@@ -98,5 +101,7 @@ model_test <- combined %>%
     ets = ETS(hits),
     arima = ARIMA(hits)
   )
+
+model_test$arima
 ```
 

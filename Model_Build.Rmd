@@ -36,7 +36,8 @@ clean_gt <- gt %>%
          year = as.character(year(date)),
          hits = str_replace(hits, "<1","0"),
          hits = as.numeric(hits)) %>%
-  rename(team = teams) %>%
+  rename(team = teams,
+         googlehits = hits) %>%
   select(-X) %>%
   arrange(team)
 ```
@@ -56,7 +57,24 @@ clean_tms <- tms %>%
   mutate_all(na_if,"") %>%
   mutate(TVMarketSize = as.numeric(gsub(",","",TVMarketSize))) %>%
   rename(team = Team)
+
+# CWS/CHC, LAA/LAD, NYM/NYY, OAK/SFG all share TV Markets so must proportion by TV Rating
+clean_tms <- clean_tms %>%
+  mutate(proportions = case_when(
+    team == "Chicago Cubs" ~ (4.43 / (4.43 + 1.03)),
+    team == "Chicago White Sox" ~ (1.03 / (4.43 + 1.03)),
+    team == "Los Angeles Angels" ~ (1.43 / (1.43 + 1.96)),
+    team == "Los Angeles Dodgers" ~ (1.96 / (1.43 + 1.96)),
+    team == "New York Mets" ~ (2.47 / (2.47 + 3.34)),
+    team == "New York Yankees" ~ (3.34 / (2.47 + 3.34)),
+    team == "Oakland Athletics" ~ (0.88 / (0.88 + 2.68)),
+    team == "San Francisco Giants" ~ (0.88 / (0.88 + 2.68)),
+    TRUE ~ 1
+    )) %>%
+  mutate(propTVMarketSize = round(TVMarketSize * proportions)) %>%
+  select(team, propTVMarketSize)
 ```
+
 ## Cleaning Team Performance
 ```{r}
 clean_tp <- tp %>%
@@ -97,9 +115,9 @@ combined
 model_test <- combined %>%
   filter(team =="Chicago Cubs") %>%
   model(
-    snaive = SNAIVE(hits),
-    ets = ETS(hits),
-    arima = ARIMA(hits)
+    snaive = SNAIVE(googlehits),
+    ets = ETS(googlehits),
+    arima = ARIMA(googlehits)
   )
 
 model_test$arima

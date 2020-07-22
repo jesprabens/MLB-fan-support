@@ -29,8 +29,7 @@ tms <- read.csv("MLB_TV_Market_Size.csv")
 
 ## Cleaning Google Trends Data
 ```{r}
-# cleaning google trends data by replacing <1 with 0 and making hits numeric
-# also converting to tsibble
+# cleaning google trends data by replacing <1 with 0 and and changing type of other variables
 clean_gt <- gt %>%
   mutate(date = as.character(date),
          year = as.character(year(date)),
@@ -44,6 +43,7 @@ clean_gt <- gt %>%
 
 ## Cleaning Preseason Odds Data
 ```{r}
+# changed the structure of the data using pivot_longer and then changed certain names of columns
 clean_po <- po %>%
   pivot_longer(cols = 2:18, names_to = "year") %>%
   mutate(year = substring(year, 2)) %>%
@@ -53,12 +53,13 @@ clean_po <- po %>%
 
 ## Cleaning TV Market Size
 ```{r}
+# take out all commas in observations
 clean_tms <- tms %>%
   mutate_all(na_if,"") %>%
   mutate(TVMarketSize = as.numeric(gsub(",","",TVMarketSize))) %>%
   rename(team = Team)
 
-# CWS/CHC, LAA/LAD, NYM/NYY, OAK/SFG all share TV Markets so must proportion by TV Rating
+# CWS/CHC, LAA/LAD, NYM/NYY, OAK/SFG all share TV Markets so must proportion by TV Rating to split the Market size
 clean_tms <- clean_tms %>%
   mutate(proportions = case_when(
     team == "Chicago Cubs" ~ (4.43 / (4.43 + 1.03)),
@@ -68,7 +69,7 @@ clean_tms <- clean_tms %>%
     team == "New York Mets" ~ (2.47 / (2.47 + 3.34)),
     team == "New York Yankees" ~ (3.34 / (2.47 + 3.34)),
     team == "Oakland Athletics" ~ (0.88 / (0.88 + 2.68)),
-    team == "San Francisco Giants" ~ (0.88 / (0.88 + 2.68)),
+    team == "San Francisco Giants" ~ (2.68 / (0.88 + 2.68)),
     TRUE ~ 1
     )) %>%
   mutate(propTVMarketSize = round(TVMarketSize * proportions)) %>%
@@ -77,24 +78,37 @@ clean_tms <- clean_tms %>%
 
 ## Cleaning Team Performance
 ```{r}
+# changed Angels, Marlins, and Expos to all their updated names / cities
+# changed the N and Y to 0's and 1's to indicate whether each team won their division, wild card game, league, and world series
 clean_tp <- tp %>%
   mutate(team = name, 
          year = yearID,
          team = (gsub("Anaheim Angels","Los Angeles Angels of Anaheim", team)),
-         team = (gsub("Florida Marlins","Miami Marlins", team))) %>%
+         team = (gsub("Florida Marlins","Miami Marlins", team)),
+         team = (gsub("Montreal Expos","Washington Nationals", team))) %>%
+  mutate(year = as.character(year),
+         team = as.factor(team)) %>%
+  mutate(DivWin = as.factor(case_when(DivWin == "N" ~ 0, DivWin == "Y" ~ 1)),
+         WCWin = as.factor(case_when(WCWin == "N" ~ 0, WCWin == "Y" ~ 1)),
+         LgWin = as.factor(case_when(LgWin == "N" ~ 0, LgWin == "Y" ~ 1)),
+         WSWin = as.factor(case_when(WSWin == "N" ~ 0, WSWin == "Y" ~ 1))) %>%
   select(year, team, W, L, DivWin, WCWin, LgWin, WSWin, attendance) %>%
   arrange(year, team)
 ```
 
 ## Cleaning Attendance and Revenue dataset 
 ```{r}
+# took out commas in all numeric observations
 clean_ar <- ar %>%
+  rename(year = Year) %>%
   mutate(attendance = as.numeric(gsub(",","",Attendance)),
          att_per_game = as.numeric(gsub(",","",Attend.G)),
-         payroll = as.numeric(str_replace_all(Est..Payroll, "[^[:alnum:]]", ""))) %>%
-  rename(year = Year) %>%
+         payroll = as.numeric(str_replace_all(Est..Payroll, "[^[:alnum:]]", "")),
+         year = as.character(year),
+         team = as.factor(Tm)) %>%
   select(year, Tm, attendance, att_per_game, payroll)
 
+# needed to get full names of teams so used team names from previous dataframe
 clean_ar <- left_join(clean_ar, clean_tp, by = c("year", "attendance")) %>%
   select(year, team, attendance, att_per_game, payroll)
 ```
@@ -102,21 +116,27 @@ clean_ar <- left_join(clean_ar, clean_tp, by = c("year", "attendance")) %>%
 
 ## Combining Datasets
 ```{r}
-combined <- left_join(clean_gt, clean_po, by = c("team", "year")) %>%
-  mutate(date = yearmonth(date)) %>%
-  select(-year) %>%
-  as_tsibble(key = team, index = date)
+# combining all dataframes together
+combined <- left_join(clean_gt, clean_po, by = c("team", "year")) # combine google trends and preseason odds data
+combined <- left_join(combined, clean_tms, by = "team") # combine previous dataframe with TVMarketSize data
+combined <- left_join(combined, clean_tp, by = c("team", "year")) # combine previous dataframe with team performance data
+combined <- left_join(combined, clean_ar, by = c("team", "year")) # combine previous dataframe with attendance and revenue data
 
-combined
+# picking out and renaming specific variables
+# converting date to a month object to fit in fable / tsibble functions
+# convert to tsibble
+alldata <- combined %>%
+  rename(attendance = attendance.x) %>%
+  select(-c(year, attendance.y)) %>%
+  mutate(date = yearmonth(date)) %>%
+  as_tsibble(key = team, index = date)
 ```
 
 # Building Model
 ```{r}
-model_test <- combined %>%
+model_test <- alldata %>%
   filter(team =="Chicago Cubs") %>%
   model(
-    snaive = SNAIVE(googlehits),
-    ets = ETS(googlehits),
     arima = ARIMA(googlehits)
   )
 

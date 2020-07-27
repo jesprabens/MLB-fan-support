@@ -15,7 +15,6 @@ library(fable)
 library(lubridate)
 library(tsibble)
 library(feasts)
-library(zoo)
 ```
 
 ## Loading Data
@@ -92,7 +91,8 @@ clean_tp <- tp %>%
          WCWin = as.factor(case_when(WCWin == "N" ~ 0, WCWin == "Y" ~ 1)),
          LgWin = as.factor(case_when(LgWin == "N" ~ 0, LgWin == "Y" ~ 1)),
          WSWin = as.factor(case_when(WSWin == "N" ~ 0, WSWin == "Y" ~ 1))) %>%
-  select(year, team, W, L, DivWin, WCWin, LgWin, WSWin, attendance) %>%
+  mutate(winpct = round(W / (W + L), digits = 3)) %>%
+  select(year, team, winpct, DivWin, WCWin, LgWin, WSWin, attendance) %>%
   arrange(year, team)
 ```
 
@@ -102,15 +102,15 @@ clean_tp <- tp %>%
 clean_ar <- ar %>%
   rename(year = Year) %>%
   mutate(attendance = as.numeric(gsub(",","",Attendance)),
-         att_per_game = as.numeric(gsub(",","",Attend.G)),
+         attgame = as.numeric(gsub(",","",Attend.G)),
          payroll = as.numeric(str_replace_all(Est..Payroll, "[^[:alnum:]]", "")),
          year = as.character(year),
          team = as.factor(Tm)) %>%
-  select(year, Tm, attendance, att_per_game, payroll)
+  select(year, Tm, attendance, attgame, payroll)
 
 # needed to get full names of teams so used team names from previous dataframe
 clean_ar <- left_join(clean_ar, clean_tp, by = c("year", "attendance")) %>%
-  select(year, team, attendance, att_per_game, payroll)
+  select(year, team, attendance, attgame, payroll)
 ```
 
 
@@ -129,17 +129,41 @@ alldata <- combined %>%
   rename(attendance = attendance.x) %>%
   select(-c(year, attendance.y)) %>%
   mutate(date = yearmonth(date)) %>%
-  as_tsibble(key = team, index = date)
+  as_tsibble(key = c(team, propTVMarketSize, odds, winpct), index = date)
 ```
 
 # Building Model
 ```{r}
-model_test <- alldata %>%
-  filter(team =="Chicago Cubs") %>%
+# filtering down to one team
+lad <- alldata %>%
+  filter(team == "Los Angeles Dodgers") %>%
+  arrange(date)
+
+# creating snaive, ets, and arima models
+fit <- lad %>%
   model(
-    arima = ARIMA(googlehits)
+    arima = ARIMA(googlehits) # testing with only arima right now
   )
 
-model_test$arima
+
+# shows coefficients of the arima models
+# Problem with have multiple coefficients
+# PROBLEM?? Confused becauses doesnt account for every date so it only creates estimates and models for each unique row (per season)
+
+
+coef <- fit %>%
+  select(team, arima) %>%
+  coef()
+
+
+
+
+#forecasted 12 periods into future / do i need to forecast?
+# fc <- fit %>%
+#   forecast(h = 12)
+# 
+# fc %>%
+#   autoplot(lad, level = NULL)
 ```
+
 

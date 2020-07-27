@@ -1,0 +1,14 @@
+---
+title: "MLB Write Up"
+author: "Jake Esprabens"
+date: "7/23/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Data Collection
+
+In order to measure the bandwagon level of MLB fans, we gathered data from google trends to depict the popularity of each team.  This data was gathered using the **gtrendsR** package, which automatically pulls the data from Google Trends API.  The units of the Google Trend data are relative to the maximum 

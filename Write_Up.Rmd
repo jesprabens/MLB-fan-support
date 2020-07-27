@@ -11,4 +11,6 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Data Collection
 
-In order to measure the bandwagon level of MLB fans, we gathered data from google trends to depict the popularity of each team.  This data was gathered using the **gtrendsR** package, which automatically pulls the data from Google Trends API.  The units of the Google Trend data are relative to the maximum 
+In order to measure the bandwagon level of MLB fans, we gathered data from google trends to depict the popularity of each team.  This data was gathered using the [**gtrendsR**](https://cran.r-project.org/web/packages/gtrendsR/gtrendsR.pdf) package, which automatically pulls the data from [Google Trends](https://trends.google.com/trends/?geo=US) API.  The units of the Google Trend data are relative to the maximum of the trend.  Therefore, we went through each team and determined that the Chicago Cubs had the maximum google trend hits; this lead us to gather data for the rest of the MLB teams relative to the Cubs.
+
+The preseason odds dataset was gathered using data from [Sports Odds History](https://www.sportsoddshistory.com/mlb-odds/).  We compiled this data by viewing each teams' odds of winning the World Series from 2004 to the present.  Ideally, we would have like to use monthly odds of winning the World Series for each MLB team; however, this data was not available for every desired year.

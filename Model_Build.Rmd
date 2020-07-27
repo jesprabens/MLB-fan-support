@@ -155,7 +155,9 @@ coef <- fit %>%
   select(team, arima) %>%
   coef()
 
+coef
 
+# Are the estimates from the coef all i need to make predicted values? But these coefs are arranged in order by date. Arranged from lowest to max odds
 
 
 #forecasted 12 periods into future / do i need to forecast?

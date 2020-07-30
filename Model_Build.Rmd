@@ -15,6 +15,7 @@ library(fable)
 library(lubridate)
 library(tsibble)
 library(feasts)
+library(mable)
 ```
 
 ## Loading Data
@@ -129,7 +130,7 @@ alldata <- combined %>%
   rename(attendance = attendance.x) %>%
   select(-c(year, attendance.y)) %>%
   mutate(date = yearmonth(date)) %>%
-  as_tsibble(key = c(team, propTVMarketSize, odds, winpct), index = date)
+  as_tsibble(key = team, index = date)
 ```
 
 # Building Model
@@ -142,30 +143,30 @@ lad <- alldata %>%
 # creating snaive, ets, and arima models
 fit <- lad %>%
   model(
-    arima = ARIMA(googlehits) # testing with only arima right now
+    arima = ARIMA(googlehits ~ odds + attgame + winpct) # testing with only arima right now
   )
 
+# ARIMA is used when implementing exogenous regressors 
 
-# shows coefficients of the arima models
-# Problem with have multiple coefficients
-# PROBLEM?? Confused becauses doesnt account for every date so it only creates estimates and models for each unique row (per season)
+# DIFFERENT FUNCTIONS TO USE ON MABLE
+# augment() grabs fitted values and we can plot these
+# glance() checks AIC and BIC
+# components() allows us to use ggplot to plot aspects of the model / only works on ets and snaive i think
 
+fitted <- augment(fit) 
+
+fitted %>%
+  ggplot() + 
+  geom_line(aes(x = date, y = googlehits), color = "blue") +
+  geom_line(aes(x = date, y = .fitted), color = "red")
+
+# small problem is that it can't produce fitted values for any 2020 months because I don't have winpct for those dates / dont know if it matters?
 
 coef <- fit %>%
   select(team, arima) %>%
   coef()
 
 coef
-
-# Are the estimates from the coef all i need to make predicted values? But these coefs are arranged in order by date. Arranged from lowest to max odds
-
-
-#forecasted 12 periods into future / do i need to forecast?
-# fc <- fit %>%
-#   forecast(h = 12)
-# 
-# fc %>%
-#   autoplot(lad, level = NULL)
 ```
 
 

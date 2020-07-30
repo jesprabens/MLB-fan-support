@@ -146,7 +146,9 @@ fit <- lad %>%
     arima = ARIMA(googlehits ~ odds + attgame + winpct) # testing with only arima right now
   )
 
-# ARIMA is used when implementing exogenous regressors 
+# ARIMA is used when implementing exogenous regressors so Arima works for our data
+# from what I have seen, the date doesn't need to me on the right hand side of the formula
+# I believe you can manually add seasonality if you specify your own model; however, it should estimate seasonality if I don't specify it
 
 # DIFFERENT FUNCTIONS TO USE ON MABLE
 # augment() grabs fitted values and we can plot these
@@ -155,6 +157,7 @@ fit <- lad %>%
 
 fitted <- augment(fit) 
 
+#PLOT of Actual vs Fitted Values
 fitted %>%
   ggplot() + 
   geom_line(aes(x = date, y = googlehits), color = "blue") +
@@ -167,6 +170,7 @@ coef <- fit %>%
   coef()
 
 coef
+# exogenous regressors are still not significant though?
 ```
 
 

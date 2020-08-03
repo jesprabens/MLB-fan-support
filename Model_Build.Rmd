@@ -140,10 +140,10 @@ lad <- alldata %>%
   filter(team == "Los Angeles Dodgers") %>%
   arrange(date)
 
-# creating snaive, ets, and arima models
+# creating arima models
 fit <- lad %>%
   model(
-    arima = ARIMA(googlehits ~ odds + attgame + winpct) # testing with only arima right now
+    arima = ARIMA(googlehits ~ odds + attgame + winpct + payroll + DivWin + LgWin + WSWin) # testing with only some regressors
   )
 
 # ARIMA is used when implementing exogenous regressors so Arima works for our data
@@ -172,5 +172,41 @@ coef <- fit %>%
 coef
 # exogenous regressors are still not significant though?
 ```
+
+## Interpretting Time Series Terms
+### Dodger Example
+
+ARIMA(p,d,q)(P,D,Q)s
+
+In this case focusing on just the Dodgers, we have an $ARIMA(0,0,0)(1,0,1)12$ model. The $12$ represents the numer of periods within a year; therefore, this is a monthly series. The seasonal autoregressive order 1 (sar1) term means that we are using a linear combination with the values of the variable of interest, google hits, lagged from exactly 12 months ago.  The seasonal moving average order 1 (sma1) means that the current google hits are affected by some random error from exactly 12 months ago.
+
+The model without the exogenous regressors can be written as by $(Y_t-\phi_{12} Y_{t - 12}) = (e_{t}+\Theta_{12} e_{t-12})$  where $\phi_{12} = 0.509$ and $\Theta_{12} = 0.308$. This $0.308$ of the sar1 term can interpretted as moving $60.2\%$ of the way from the current google hits toward the average of the google hits.  The $0.509$ of the 
+
+I'm iffy on the numerical interpretations of these terms ^. Most people say that they are just different weights and either converge or diverge faster or slower depending on the estimate of the coefficient.
+
+
+## Hierarchial Model
+```{r}
+# all I did was add propTVMarketSize as a key when converting to tsibble, not sure if that's the correct way to do it? I didn't add propTVMarketSize to the arima model.  It says it wasn't found if I add it there.
+
+alldata_hier <- combined %>%
+  rename(attendance = attendance.x) %>%
+  select(-c(year, attendance.y)) %>%
+  mutate(date = yearmonth(date)) %>%
+  as_tsibble(key = c(team, propTVMarketSize), index = date)
+
+hier_model <- alldata_hier %>%
+  model(
+    arima = ARIMA(googlehits ~ odds + attgame + winpct + payroll + DivWin + LgWin + WSWin)
+  )
+
+hier_fitted <- augment(hier_model)
+
+hier_model %>%
+  select(team, arima) %>%
+  coef()
+```
+
+
 
 

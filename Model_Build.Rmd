@@ -83,7 +83,8 @@ clean_tms <- clean_tms %>%
 clean_tp <- tp %>%
   mutate(team = name, 
          year = yearID,
-         team = (gsub("Anaheim Angels","Los Angeles Angels of Anaheim", team)),
+         team = (gsub("Anaheim Angels","Los Angeles Angels", team)),
+         team = (gsub("Los Angeles Angels of Anaheim","Los Angeles Angels", team)),
          team = (gsub("Florida Marlins","Miami Marlins", team)),
          team = (gsub("Montreal Expos","Washington Nationals", team))) %>%
   mutate(year = as.character(year),
@@ -197,7 +198,7 @@ alldata_hier <- combined %>%
 
 hier_model <- alldata_hier %>%
   model(
-    arima = ARIMA(googlehits ~ odds + attgame + winpct + payroll + DivWin + LgWin + WSWin)
+    arima = ARIMA(googlehits ~ odds + attgame + winpct + payroll + DivWin + WCWin + LgWin + WSWin)
   )
 
 hier_fitted <- augment(hier_model)

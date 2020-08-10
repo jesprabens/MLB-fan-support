@@ -181,7 +181,7 @@ ARIMA(p,d,q)(P,D,Q)s
 
 In this case focusing on just the Dodgers, we have an $ARIMA(0,0,0)(1,0,1)12$ model. The $12$ represents the numer of periods within a year; therefore, this is a monthly series. The seasonal autoregressive order 1 (sar1) term means that we are using a linear combination with the values of the variable of interest, google hits, lagged from exactly 12 months ago.  The seasonal moving average order 1 (sma1) means that the current google hits are affected by some random error from exactly 12 months ago.
 
-The model without the exogenous regressors can be written as by $(Y_t-\phi_{12} Y_{t - 12}) = (e_{t}+\Theta_{12} e_{t-12})$  where $\phi_{12} = 0.509$ and $\Theta_{12} = 0.308$. This $0.308$ of the sar1 term can interpretted as moving $60.2\%$ of the way from the current google hits toward the average of the google hits.  The $0.509$ of the 
+The model without the exogenous regressors can be written as by $(Y_t-\phi_{12} Y_{t - 12}) = (e^{Yt}+\Theta_{12} e^{Yt-12})$  where $\phi_{12} = 0.509$ and $\Theta_{12} = 0.308$. This $0.308$ of the sar1 term can interpretted as moving $69.2\%$ of the way from the current google hits toward the average of the google hits.
 
 I'm iffy on the numerical interpretations of these terms ^. Most people say that they are just different weights and either converge or diverge faster or slower depending on the estimate of the coefficient.
 

@@ -47,6 +47,14 @@ dat <- dat %>%
   mutate_at(vars(month, year, team), funs(factor))
 
 summary(dat$playoffs)
+
+## playoffs variable
+#  Did Not make Playoffs or WC Play-in 
+#  Played in WC Play-In
+#  Eliminated Round 1
+#  Eliminated Round 2
+#  Lost WS
+#  Won WS
 ```
 
 
@@ -88,8 +96,8 @@ Do the "boosts" act as a percent of the possible volume?
 ```{r}
 dat %>%
   ggplot() +
-  geom_histogram(aes(x = log(googlehits))) +
-  facet_wrap(~phase)
+  geom_histogram(aes(x = log(googlehits))) #+
+  #facet_wrap(~phase)
 
 dat %>%
   filter(googlehits > 0) %>%
@@ -372,7 +380,7 @@ dat %>%
   geom_line(aes(x = date, y = final_preds), color = "cornflowerblue")
 
 dat %>%
-  filter(team == "Houston Astros") %>%
+  filter(team == "Baltimore Orioles") %>%
   ggplot() + 
   geom_line(aes(x = date, y = qn_ghits), color = "deeppink") +
   geom_line(aes(x = date, y = final_preds), color = "cornflowerblue")
@@ -386,7 +394,7 @@ Seems to be underpredicting heavily when teams are bad.  Hmmmm.  Maybe the AR mo
 # Next: A non-ARIMA hierarchical model
 
 ```{r}
-lump_mod <- lm(qn_ghits ~ payroll + (odds + winpct)*phase + is_playoffs:playoffs, data = dat)
+lump_mod <- lm(qn_ghits ~ payroll + (odds + winpct)*phase + is_playoffs:playoffs:team, data = dat)
 
 summary(lump_mod)
 
@@ -398,24 +406,13 @@ dat %>%
   ggplot() + 
   geom_line(aes(x = date, y = qn_ghits), color = "deeppink") +
   geom_line(aes(x = date, y = lump_preds), color = "cornflowerblue")
-```
-This is much better.
 
-
-```{r}
-library(lme4)
-
-lump_mod <- lmer(qn_ghits ~ payroll + odds + winpct + (is_playoffs:playoffs + 1|team), data = dat)
-
-summary(lump_mod)
-
-dat <- dat %>%
-  modelr::add_predictions(lmer, var = "lump_preds")
 
 dat %>%
-  filter(team == "Los Angeles Dodgers") %>%
+  filter(team == "San Diego Padres") %>%
   ggplot() + 
   geom_line(aes(x = date, y = qn_ghits), color = "deeppink") +
   geom_line(aes(x = date, y = lump_preds), color = "cornflowerblue")
 ```
+This is much better.
 

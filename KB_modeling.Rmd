@@ -1,0 +1,418 @@
+---
+title: "Hierarchical ARIMA"
+author: "Kelly Bodwin"
+date: "8/10/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(tidyverse)
+library(fable)
+library(lubridate)
+library(tsibble)
+library(feasts)
+library(mable)
+library(hts)
+library(modelr)
+```
+
+```{r}
+dat <- read_csv(here::here("combined_data.csv"))
+
+dat <- dat %>%
+  mutate_at(vars(DivWin, WCWin, LgWin, WSWin), funs(as.logical)) %>%
+  mutate(
+    playoffs = case_when(
+      WSWin ~ "Won WS",
+      LgWin ~ "Won League",
+      WCWin  ~ "Won Conference",
+      DivWin  ~ "Won Division",
+      TRUE ~ "Did not qualify"
+    ),
+    playoffs = forcats::fct_inorder(playoffs),
+    phase = case_when(
+      month < 04 | month > 10 ~ "Summer",
+      month == 04 ~ "Opening",
+      month < 10 & month > 04 ~ "Season",
+      month == 10 ~ "Playoffs"
+    ),
+    phase = forcats::fct_reorder(phase, month),
+    is_playoffs = as.integer(phase == "Playoffs")
+  ) %>%
+  mutate_at(vars(month, year, team), funs(factor))
+
+summary(dat$playoffs)
+
+## playoffs variable
+#  Did Not make Playoffs or WC Play-in 
+#  Played in WC Play-In
+#  Eliminated Round 1
+#  Eliminated Round 2
+#  Lost WS
+#  Won WS
+```
+
+
+**Forever** variables:
+- `propTVMarketSize` = # of people in TV market region
+
+**Start of Season** variables:
+- `odds` = preseason odds of winning WS
+- `payroll` = team's payroll at start of season (?)
+
+**End of Season** variables:
+- `attendance` = total attendance
+- `attgame` = attendance per game (?)
+- `winpct` = win percent of season
+- `DivWin`, etc = dummy variables for playoff success
+
+**Monthly** variables:
+- Just `googlehits`
+
+
+Overall mean google hits should be determined by market size.
+
+Annual mean hits should be initially predicted by percieved competitiveness.
+
+Annual mean hits should actually occur based on win percent and playoff success.
+
+Annual mean hits are well measured by attendance.
+
+Monthly hits should be determined by:
+- Seasonality
+- What happened last month with the team
+- Playoff status
+
+Do the "boosts" act as a percent of the possible volume?
+
+---
+## Explore data
+
+```{r}
+dat %>%
+  ggplot() +
+  geom_histogram(aes(x = log(googlehits))) #+
+  #facet_wrap(~phase)
+
+dat %>%
+  filter(googlehits > 0) %>%
+  summarize(mean(log(googlehits+1)))
+```
+
+Basically, ghits are very, very skewed, and this is a bit of a problem. 
+
+I'm going to do a silly cheat that is actually used a lot, and quantile normalize
+this data.
+
+```{r}
+quant_norm <- function(vec){
+  
+  quants <- rank(vec)/(length(vec) + 1)
+  normies <- purrr::map_dbl(quants, qnorm)
+  
+  return(normies)
+  
+}
+
+
+dat <- dat %>%
+  mutate(
+    qn_ghits = quant_norm(googlehits)
+  )
+
+```
+
+
+```{r}
+CA_teams <- c("San Francisco Giants", "Los Angeles Dodgers", "San Diego Padres", 
+              "Oakland Athletics")
+
+example_teams <- c("Chicago Cubs", "Arizona Diamondbacks", "Los Angeles Dodgers")
+
+## Just makes things a little less extreme.
+
+dat %>%
+  filter(team == "Chicago Cubs") %>%
+  ggplot(aes(x = date, y = qn_ghits, color = team)) +
+  geom_line()
+
+dat %>%
+  filter(team == "Chicago Cubs") %>%
+  ggplot(aes(x = date, y = googlehits)) +
+  geom_line()
+```
+
+
+---
+
+
+```{r}
+dat %>%
+  group_by(playoffs, month) %>% 
+  summarize(googlehits = mean(googlehits)) %>%
+  ungroup() %>%
+ ggplot(aes(x = month, y = googlehits)) +
+  geom_point() +
+  facet_wrap(~playoffs)
+
+
+dat %>%
+  group_by(playoffs, month) %>% 
+  summarize(googlehits = mean(qn_ghits)) %>%
+  ungroup() %>%
+ ggplot(aes(x = month, y = googlehits)) +
+  geom_point() +
+  facet_wrap(~playoffs)
+
+```
+
+
+---
+## Ugly model
+
+```{r}
+mod <- lm(qn_ghits ~ propTVMarketSize  + odds + attgame + payroll + is_playoffs*winpct +  is_playoffs*playoffs, data = dat)
+
+summary(mod)
+
+dat %>%
+  add_predictions(mod) %>%
+  mutate(
+    error = qn_ghits - pred
+  ) %>%
+  filter(team %in% c("Boston Red Sox", "New York Yankees", "Arizona Diamondbacks")) %>%
+  #filter(team == "Boston Red Sox") %>%
+  ggplot() +
+   geom_line(aes(x = date, y = error, color = team))
+  #geom_line(aes(x = date, y = qn_ghits), color = "cornflowerblue") +
+  #geom_line(aes(x = date, y = pred), color = "deeppink")
+```
+
+---
+## More exploring
+
+
+```{r}
+by_team <- 
+  dat %>%
+  filter(phase == "Season") %>%
+  group_by(team) %>%  
+  summarize(qn_ghits = mean(qn_ghits),
+            propTVMarketSize = max(propTVMarketSize)) 
+
+
+by_year <- 
+  dat %>%
+  filter(phase == "Season") %>%
+  group_by(team, year) %>%  
+  summarize(qn_ghits = median(qn_ghits),
+            attendance = max(attendance),
+            payroll = max(payroll),
+            odds = max(odds),
+            winpct = max(winpct)) %>%
+  ungroup()
+
+
+by_year %>%
+  ggplot(aes(x = payroll, y = qn_ghits)) +
+  geom_point()
+
+library(GGally)
+
+by_year %>%
+  select(-team, -year) %>%
+  ggpairs()
+```
+---
+
+## Model 1: Overall mean
+
+```{r}
+by_team %>%
+  filter(team %in% example_teams)
+
+
+global_means <- lm(qn_ghits ~ propTVMarketSize, data = by_team)
+
+summary(global_means)
+```
+
+
+
+Takeaway:  More hits in bigger markets, as expected.
+
+```{r}
+## make new column of errors
+dat <- dat %>%
+  modelr::add_predictions(global_means, var = "ghits_p1") %>%
+  mutate(
+    ghits_e1 = qn_ghits - ghits_p1
+  )
+
+dat %>%
+  filter(team %in% example_teams) %>%
+  ggplot(aes(x = date, y = ghits_e1, color = team)) +
+  geom_line()
+```
+
+... but not much evening out happening here.  Seems that the overall levels probably
+have more to do with team success than anything else.
+
+---
+
+## Model 2: Annual means
+
+
+```{r}
+by_year <- 
+  dat %>%
+  filter(phase == "Season") %>%
+  group_by(team, year) %>%  
+  summarize(ghits_e1 = mean(ghits_e1),
+            attendance = max(attendance),
+            payroll = max(payroll),
+            odds = max(odds),
+            winpct = max(winpct)) %>%
+  ungroup()
+
+
+annual_means <- lm(ghits_e1 ~ odds + winpct + attendance + payroll, data = by_year) ## this should be an AR model
+  
+
+summary(annual_means)
+
+
+```
+
+Takeaway:  Payroll and winpct are a good predictor of annual ghits  
+
+```{r}
+## make new column of errors
+dat <- dat %>%
+  modelr::add_predictions(annual_means, var = "ghits_p2") %>%
+  mutate(
+    ghits_e2 = qn_ghits - ghits_p1 - ghits_p2
+  )
+
+dat %>%
+  filter(team %in% example_teams) %>%
+  ggplot(aes(x = date, y = ghits_e2, color = team)) +
+  geom_line()
+```
+
+Much more evened out for Dodgers and Dbacks.  Why not for Cubs?  Probably because
+of the later increasingtrend they have.
+
+---
+
+## Model 3: Monthly
+
+```{r}
+final_model <- 
+  dat  %>%
+  lm(ghits_e2 ~ phase + is_playoffs:playoffs, data = .) ## needs to be AR model instead
+  
+
+summary(final_model)
+```
+
+Takeaway:  More hits in bigger markets, as expected.
+
+```{r}
+## make new column of errors
+dat <- dat %>%
+  modelr::add_predictions(final_model, var = "ghits_p3") %>%
+  mutate(
+    ghits_e3 = ghits_e2 - ghits_p3,
+    final_preds = ghits_p1 + ghits_p2 + ghits_p3
+  )
+
+dat %>%
+  filter(team %in% example_teams) %>%
+  ggplot(aes(x = date, y = ghits_e3, color = team)) +
+  geom_line()
+```
+
+Error seems a lot more random, which is the goal!
+
+```{r}
+dat %>%
+  filter(team %in% CA_teams) %>%
+  ggplot(aes(x = date, y = ghits_e3, color = team)) +
+  geom_line()
+```
+```{r}
+dat %>%
+  filter(team %in% example_teams) %>%
+  ggplot(aes(x = ghits_e3)) +
+  geom_histogram() +
+  facet_wrap(~team)
+```
+
+```{r}
+dat %>%
+  filter(team == "Chicago Cubs") %>%
+  ggplot(aes(x = qn_ghits, y = final_preds, color = phase)) + 
+  geom_point()
+
+
+dat %>%
+  filter(team == "Chicago Cubs") %>%
+  ggplot() + 
+  geom_line(aes(x = date, y = qn_ghits), color = "deeppink") +
+  geom_line(aes(x = date, y = final_preds), color = "cornflowerblue")
+
+dat %>%
+  filter(team == "Arizona Diamondbacks") %>%
+  ggplot() + 
+  geom_line(aes(x = date, y = qn_ghits), color = "deeppink") +
+  geom_line(aes(x = date, y = final_preds), color = "cornflowerblue")
+
+dat %>%
+  filter(team == "Los Angeles Dodgers") %>%
+  ggplot() + 
+  geom_line(aes(x = date, y = qn_ghits), color = "deeppink") +
+  geom_line(aes(x = date, y = final_preds), color = "cornflowerblue")
+
+dat %>%
+  filter(team == "Baltimore Orioles") %>%
+  ggplot() + 
+  geom_line(aes(x = date, y = qn_ghits), color = "deeppink") +
+  geom_line(aes(x = date, y = final_preds), color = "cornflowerblue")
+```
+
+Seems to be underpredicting heavily when teams are bad.  Hmmmm.  Maybe the AR model will help that.
+
+
+---
+
+# Next: A non-ARIMA hierarchical model
+
+```{r}
+lump_mod <- lm(qn_ghits ~ payroll + (odds + winpct)*phase + is_playoffs:playoffs:team, data = dat)
+
+summary(lump_mod)
+
+dat <- dat %>%
+  modelr::add_predictions(lump_mod, var = "lump_preds")
+
+dat %>%
+  filter(team == "Los Angeles Dodgers") %>%
+  ggplot() + 
+  geom_line(aes(x = date, y = qn_ghits), color = "deeppink") +
+  geom_line(aes(x = date, y = lump_preds), color = "cornflowerblue")
+
+
+dat %>%
+  filter(team == "San Diego Padres") %>%
+  ggplot() + 
+  geom_line(aes(x = date, y = qn_ghits), color = "deeppink") +
+  geom_line(aes(x = date, y = lump_preds), color = "cornflowerblue")
+```
+This is much better.
+

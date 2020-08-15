@@ -186,7 +186,7 @@ The model without the exogenous regressors can be written as by $(Y_t-\phi_{12} 
 I'm iffy on the numerical interpretations of these terms ^. Most people say that they are just different weights and either converge or diverge faster or slower depending on the estimate of the coefficient.
 
 
-## Hierarchial Model
+## Hierarchial Model (Note Right)
 ```{r}
 # all I did was add propTVMarketSize as a key when converting to tsibble, not sure if that's the correct way to do it? I didn't add propTVMarketSize to the arima model.  It says it wasn't found if I add it there.
 

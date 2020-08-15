@@ -24,17 +24,20 @@ library(modelr)
 ```{r}
 dat <- read_csv(here::here("combined_data.csv"))
 
+## Added new dataset for playoff
+playoff_success <- read.csv("MLB_Postseason_Success.csv")
+
 dat <- dat %>%
-  mutate_at(vars(DivWin, WCWin, LgWin, WSWin), funs(as.logical)) %>%
+  # mutate_at(vars(DivWin, WCWin, LgWin, WSWin), funs(as.logical)) %>%
   mutate(
-    playoffs = case_when(
-      WSWin ~ "Won WS",
-      LgWin ~ "Won League",
-      WCWin  ~ "Won Conference",
-      DivWin  ~ "Won Division",
-      TRUE ~ "Did not qualify"
-    ),
-    playoffs = forcats::fct_inorder(playoffs),
+  #   playoffs = case_when(
+  #     WSWin ~ "Won WS",
+  #     LgWin ~ "Lost WS",
+  #     WCWin  ~ "Won Wild Card",
+  #     DivWin  ~ "Won Division",
+  #     TRUE ~ "No Playoffs"
+  #   ),
+    # playoffs = forcats::fct_inorder(playoffs),
     phase = case_when(
       month < 04 | month > 10 ~ "Summer",
       month == 04 ~ "Opening",
@@ -42,19 +45,19 @@ dat <- dat %>%
       month == 10 ~ "Playoffs"
     ),
     phase = forcats::fct_reorder(phase, month),
-    is_playoffs = as.integer(phase == "Playoffs")
+    # is_playoffs = as.integer(phase == "Playoffs")
   ) %>%
   mutate_at(vars(month, year, team), funs(factor))
 
 summary(dat$playoffs)
 
 ## playoffs variable
-#  Did Not make Playoffs or WC Play-in 
-#  Played in WC Play-In
-#  Eliminated Round 1
-#  Eliminated Round 2
-#  Lost WS
-#  Won WS
+#  Did Not make Playoffs or WC Play-in
+#  Played in WC Play-In - Going to need to look up and manually add (Is this only the team that lost the wild card?)
+#  Eliminated Round 1 - Going to need to look up and manually add
+#  Eliminated Round 2 - Going to need to look up and manually add
+#  Lost WS - LgWin but no WSwin
+#  Won WS - WSWin 
 ```
 
 

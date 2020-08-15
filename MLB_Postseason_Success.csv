@@ -1,0 +1,481 @@
+year,team,playoffs
+2004,Arizona Diamondbacks,
+2004,Atlanta Braves,Lost Quarter
+2004,Baltimore Orioles,
+2004,Boston Red Sox,Won WS
+2004,Chicago Cubs,
+2004,Chicago White Sox,
+2004,Cincinnati Reds,
+2004,Cleveland Indians,
+2004,Colorado Rockies,
+2004,Detroit Tigers,
+2004,Houston Astros,Lost Semi
+2004,Kansas City Royals,
+2004,Los Angeles Angels,Lost Quarter
+2004,Los Angeles Dodgers,Lost Quarter
+2004,Miami Marlins,
+2004,Milwaukee Brewers,
+2004,Minnesota Twins,Lost Quarter
+2004,New York Mets,
+2004,New York Yankees,Lost Semi
+2004,Oakland Athletics,
+2004,Philadelphia Phillies,
+2004,Pittsburgh Pirates,
+2004,San Diego Padres,
+2004,San Francisco Giants,
+2004,Seattle Mariners,
+2004,St. Louis Cardinals,Lost WS
+2004,Tampa Bay Rays,
+2004,Texas Rangers,
+2004,Toronto Blue Jays,
+2004,Washington Nationals,
+2005,Arizona Diamondbacks,
+2005,Atlanta Braves,Lost Quarter
+2005,Baltimore Orioles,
+2005,Boston Red Sox,Lost Quarter
+2005,Chicago Cubs,
+2005,Chicago White Sox,Won WS
+2005,Cincinnati Reds,
+2005,Cleveland Indians,
+2005,Colorado Rockies,
+2005,Detroit Tigers,
+2005,Houston Astros,Lost WS
+2005,Kansas City Royals,
+2005,Los Angeles Angels,Lost Semi
+2005,Los Angeles Dodgers,
+2005,Miami Marlins,
+2005,Milwaukee Brewers,
+2005,Minnesota Twins,
+2005,New York Mets,
+2005,New York Yankees,Lost Quarter
+2005,Oakland Athletics,
+2005,Philadelphia Phillies,
+2005,Pittsburgh Pirates,
+2005,San Diego Padres,Lost Quarter
+2005,San Francisco Giants,
+2005,Seattle Mariners,
+2005,St. Louis Cardinals,Lost Semi
+2005,Tampa Bay Rays,
+2005,Texas Rangers,
+2005,Toronto Blue Jays,
+2005,Washington Nationals,
+2006,Arizona Diamondbacks,
+2006,Atlanta Braves,
+2006,Baltimore Orioles,
+2006,Boston Red Sox,
+2006,Chicago Cubs,
+2006,Chicago White Sox,
+2006,Cincinnati Reds,
+2006,Cleveland Indians,
+2006,Colorado Rockies,
+2006,Detroit Tigers,Lost WS
+2006,Houston Astros,
+2006,Kansas City Royals,
+2006,Los Angeles Angels,
+2006,Los Angeles Dodgers,Lost Quarter
+2006,Miami Marlins,
+2006,Milwaukee Brewers,
+2006,Minnesota Twins,Lost Quarter
+2006,New York Mets,Lost Semi
+2006,New York Yankees,Lost Quarter
+2006,Oakland Athletics,Lost Semi
+2006,Philadelphia Phillies,
+2006,Pittsburgh Pirates,
+2006,San Diego Padres,Lost Quarter
+2006,San Francisco Giants,
+2006,Seattle Mariners,
+2006,St. Louis Cardinals,Won WS
+2006,Tampa Bay Rays,
+2006,Texas Rangers,
+2006,Toronto Blue Jays,
+2006,Washington Nationals,
+2007,Arizona Diamondbacks,Lost Semi
+2007,Atlanta Braves,
+2007,Baltimore Orioles,
+2007,Boston Red Sox,Won WS
+2007,Chicago Cubs,Lost Quarter
+2007,Chicago White Sox,
+2007,Cincinnati Reds,
+2007,Cleveland Indians,Lost Semi
+2007,Colorado Rockies,Lost WS
+2007,Detroit Tigers,
+2007,Houston Astros,
+2007,Kansas City Royals,
+2007,Los Angeles Angels,Lost Quarter
+2007,Los Angeles Dodgers,
+2007,Miami Marlins,
+2007,Milwaukee Brewers,
+2007,Minnesota Twins,
+2007,New York Mets,
+2007,New York Yankees,Lost Quarter
+2007,Oakland Athletics,
+2007,Philadelphia Phillies,Lost Quarter
+2007,Pittsburgh Pirates,
+2007,San Diego Padres,
+2007,San Francisco Giants,
+2007,Seattle Mariners,
+2007,St. Louis Cardinals,
+2007,Tampa Bay Rays,
+2007,Texas Rangers,
+2007,Toronto Blue Jays,
+2007,Washington Nationals,
+2008,Arizona Diamondbacks,
+2008,Atlanta Braves,
+2008,Baltimore Orioles,
+2008,Boston Red Sox,Lost Semi
+2008,Chicago Cubs,Lost Quarter
+2008,Chicago White Sox,Lost Quarter
+2008,Cincinnati Reds,
+2008,Cleveland Indians,
+2008,Colorado Rockies,
+2008,Detroit Tigers,
+2008,Houston Astros,
+2008,Kansas City Royals,
+2008,Los Angeles Angels,Lost Quarter
+2008,Los Angeles Dodgers,Lost Semi
+2008,Miami Marlins,
+2008,Milwaukee Brewers,Lost Quarter
+2008,Minnesota Twins,
+2008,New York Mets,
+2008,New York Yankees,
+2008,Oakland Athletics,
+2008,Philadelphia Phillies,Won WS
+2008,Pittsburgh Pirates,
+2008,San Diego Padres,
+2008,San Francisco Giants,
+2008,Seattle Mariners,
+2008,St. Louis Cardinals,
+2008,Tampa Bay Rays,Lost WS
+2008,Texas Rangers,
+2008,Toronto Blue Jays,
+2008,Washington Nationals,
+2009,Arizona Diamondbacks,
+2009,Atlanta Braves,
+2009,Baltimore Orioles,
+2009,Boston Red Sox,Lost Quarter
+2009,Chicago Cubs,
+2009,Chicago White Sox,
+2009,Cincinnati Reds,
+2009,Cleveland Indians,
+2009,Colorado Rockies,Lost Quarter
+2009,Detroit Tigers,
+2009,Houston Astros,
+2009,Kansas City Royals,
+2009,Los Angeles Angels,Lost Semi
+2009,Los Angeles Dodgers,Lost Semi
+2009,Miami Marlins,
+2009,Milwaukee Brewers,
+2009,Minnesota Twins,Lost Quarter
+2009,New York Mets,
+2009,New York Yankees,Won WS
+2009,Oakland Athletics,
+2009,Philadelphia Phillies,Lost WS
+2009,Pittsburgh Pirates,
+2009,San Diego Padres,
+2009,San Francisco Giants,
+2009,Seattle Mariners,
+2009,St. Louis Cardinals,Lost Quarter
+2009,Tampa Bay Rays,
+2009,Texas Rangers,
+2009,Toronto Blue Jays,
+2009,Washington Nationals,
+2010,Arizona Diamondbacks,
+2010,Atlanta Braves,Lost Quarter
+2010,Baltimore Orioles,
+2010,Boston Red Sox,
+2010,Chicago Cubs,
+2010,Chicago White Sox,
+2010,Cincinnati Reds,Lost Quarter
+2010,Cleveland Indians,
+2010,Colorado Rockies,
+2010,Detroit Tigers,
+2010,Houston Astros,
+2010,Kansas City Royals,
+2010,Los Angeles Angels,
+2010,Los Angeles Dodgers,
+2010,Miami Marlins,
+2010,Milwaukee Brewers,
+2010,Minnesota Twins,Lost Quarter
+2010,New York Mets,
+2010,New York Yankees,Lost Semi
+2010,Oakland Athletics,
+2010,Philadelphia Phillies,Lost Semi
+2010,Pittsburgh Pirates,
+2010,San Diego Padres,
+2010,San Francisco Giants,Won WS
+2010,Seattle Mariners,
+2010,St. Louis Cardinals,
+2010,Tampa Bay Rays,Lost Quarter
+2010,Texas Rangers,Lost WS
+2010,Toronto Blue Jays,
+2010,Washington Nationals,
+2011,Arizona Diamondbacks,Lost Quarter
+2011,Atlanta Braves,
+2011,Baltimore Orioles,
+2011,Boston Red Sox,
+2011,Chicago Cubs,
+2011,Chicago White Sox,
+2011,Cincinnati Reds,
+2011,Cleveland Indians,
+2011,Colorado Rockies,
+2011,Detroit Tigers,Lost Semi
+2011,Houston Astros,
+2011,Kansas City Royals,
+2011,Los Angeles Angels,
+2011,Los Angeles Dodgers,
+2011,Miami Marlins,
+2011,Milwaukee Brewers,Lost Semi
+2011,Minnesota Twins,
+2011,New York Mets,
+2011,New York Yankees,Lost Quarter
+2011,Oakland Athletics,
+2011,Philadelphia Phillies,Lost Quarter
+2011,Pittsburgh Pirates,
+2011,San Diego Padres,
+2011,San Francisco Giants,
+2011,Seattle Mariners,
+2011,St. Louis Cardinals,Won WS
+2011,Tampa Bay Rays,Lost Quarter
+2011,Texas Rangers,Lost WS
+2011,Toronto Blue Jays,
+2011,Washington Nationals,
+2012,Arizona Diamondbacks,
+2012,Atlanta Braves,Lost WC
+2012,Baltimore Orioles,Lost Quarter
+2012,Boston Red Sox,
+2012,Chicago Cubs,
+2012,Chicago White Sox,
+2012,Cincinnati Reds,Lost Quarter
+2012,Cleveland Indians,
+2012,Colorado Rockies,
+2012,Detroit Tigers,Lost WS
+2012,Houston Astros,
+2012,Kansas City Royals,
+2012,Los Angeles Angels,
+2012,Los Angeles Dodgers,
+2012,Miami Marlins,
+2012,Milwaukee Brewers,
+2012,Minnesota Twins,
+2012,New York Mets,
+2012,New York Yankees,Lost Semi
+2012,Oakland Athletics,Lost Quarter
+2012,Philadelphia Phillies,
+2012,Pittsburgh Pirates,
+2012,San Diego Padres,
+2012,San Francisco Giants,Won WS
+2012,Seattle Mariners,
+2012,St. Louis Cardinals,Lost Semi
+2012,Tampa Bay Rays,
+2012,Texas Rangers,Lost WC
+2012,Toronto Blue Jays,
+2012,Washington Nationals,Lost Quarter
+2013,Arizona Diamondbacks,
+2013,Atlanta Braves,Lost Quarter
+2013,Baltimore Orioles,
+2013,Boston Red Sox,Won WS
+2013,Chicago Cubs,
+2013,Chicago White Sox,
+2013,Cincinnati Reds,Lost WC
+2013,Cleveland Indians,Lost WC
+2013,Colorado Rockies,
+2013,Detroit Tigers,Lost Semi
+2013,Houston Astros,
+2013,Kansas City Royals,
+2013,Los Angeles Angels,
+2013,Los Angeles Dodgers,Lost Semi
+2013,Miami Marlins,
+2013,Milwaukee Brewers,
+2013,Minnesota Twins,
+2013,New York Mets,
+2013,New York Yankees,
+2013,Oakland Athletics,Lost Quarter
+2013,Philadelphia Phillies,
+2013,Pittsburgh Pirates,Lost Quarter
+2013,San Diego Padres,
+2013,San Francisco Giants,
+2013,Seattle Mariners,
+2013,St. Louis Cardinals,Lost WS
+2013,Tampa Bay Rays,Lost Quarter
+2013,Texas Rangers,
+2013,Toronto Blue Jays,
+2013,Washington Nationals,
+2014,Arizona Diamondbacks,
+2014,Atlanta Braves,
+2014,Baltimore Orioles,Lost Semi
+2014,Boston Red Sox,
+2014,Chicago Cubs,
+2014,Chicago White Sox,
+2014,Cincinnati Reds,
+2014,Cleveland Indians,
+2014,Colorado Rockies,
+2014,Detroit Tigers,Lost Quarter
+2014,Houston Astros,
+2014,Kansas City Royals,Lost WS
+2014,Los Angeles Angels,Lost Quarter
+2014,Los Angeles Dodgers,Lost Quarter
+2014,Miami Marlins,
+2014,Milwaukee Brewers,
+2014,Minnesota Twins,
+2014,New York Mets,
+2014,New York Yankees,
+2014,Oakland Athletics,Lost WC
+2014,Philadelphia Phillies,
+2014,Pittsburgh Pirates,Lost WC
+2014,San Diego Padres,
+2014,San Francisco Giants,Won WS
+2014,Seattle Mariners,
+2014,St. Louis Cardinals,Lost Semi
+2014,Tampa Bay Rays,
+2014,Texas Rangers,
+2014,Toronto Blue Jays,
+2014,Washington Nationals,Lost Quarter
+2015,Arizona Diamondbacks,
+2015,Atlanta Braves,
+2015,Baltimore Orioles,
+2015,Boston Red Sox,
+2015,Chicago Cubs,Lost Semi
+2015,Chicago White Sox,
+2015,Cincinnati Reds,
+2015,Cleveland Indians,
+2015,Colorado Rockies,
+2015,Detroit Tigers,
+2015,Houston Astros,Lost Quarter
+2015,Kansas City Royals,Won WS
+2015,Los Angeles Angels,
+2015,Los Angeles Dodgers,Lost Quarter
+2015,Miami Marlins,
+2015,Milwaukee Brewers,
+2015,Minnesota Twins,
+2015,New York Mets,Lost WS
+2015,New York Yankees,Lost WC
+2015,Oakland Athletics,
+2015,Philadelphia Phillies,
+2015,Pittsburgh Pirates,Lost WC
+2015,San Diego Padres,
+2015,San Francisco Giants,
+2015,Seattle Mariners,
+2015,St. Louis Cardinals,Lost Quarter
+2015,Tampa Bay Rays,
+2015,Texas Rangers,Lost Quarter
+2015,Toronto Blue Jays,Lost Semi
+2015,Washington Nationals,
+2016,Arizona Diamondbacks,
+2016,Atlanta Braves,
+2016,Baltimore Orioles,Lost WC
+2016,Boston Red Sox,Lost Quarter
+2016,Chicago Cubs,Won WS
+2016,Chicago White Sox,
+2016,Cincinnati Reds,
+2016,Cleveland Indians,Lost WS
+2016,Colorado Rockies,
+2016,Detroit Tigers,
+2016,Houston Astros,
+2016,Kansas City Royals,
+2016,Los Angeles Angels,
+2016,Los Angeles Dodgers,Lost Semi
+2016,Miami Marlins,
+2016,Milwaukee Brewers,
+2016,Minnesota Twins,
+2016,New York Mets,Lost WC
+2016,New York Yankees,
+2016,Oakland Athletics,
+2016,Philadelphia Phillies,
+2016,Pittsburgh Pirates,
+2016,San Diego Padres,
+2016,San Francisco Giants,Lost Quarter
+2016,Seattle Mariners,
+2016,St. Louis Cardinals,
+2016,Tampa Bay Rays,
+2016,Texas Rangers,Lost Quarter
+2016,Toronto Blue Jays,Lost Semi
+2016,Washington Nationals,Lost Quarter
+2017,Arizona Diamondbacks,Lost Quarter
+2017,Atlanta Braves,
+2017,Baltimore Orioles,
+2017,Boston Red Sox,Lost Quarter
+2017,Chicago Cubs,Lost Semi
+2017,Chicago White Sox,
+2017,Cincinnati Reds,
+2017,Cleveland Indians,Lost Quarter
+2017,Colorado Rockies,Lost WC
+2017,Detroit Tigers,
+2017,Houston Astros,Won WS
+2017,Kansas City Royals,
+2017,Los Angeles Angels,
+2017,Los Angeles Dodgers,Lost WS
+2017,Miami Marlins,
+2017,Milwaukee Brewers,
+2017,Minnesota Twins,Lost WC
+2017,New York Mets,
+2017,New York Yankees,Lost Semi
+2017,Oakland Athletics,
+2017,Philadelphia Phillies,
+2017,Pittsburgh Pirates,
+2017,San Diego Padres,
+2017,San Francisco Giants,
+2017,Seattle Mariners,
+2017,St. Louis Cardinals,
+2017,Tampa Bay Rays,
+2017,Texas Rangers,
+2017,Toronto Blue Jays,
+2017,Washington Nationals,Lost Quarter
+2018,Arizona Diamondbacks,
+2018,Atlanta Braves,Lost Quarter
+2018,Baltimore Orioles,
+2018,Boston Red Sox,Won WS
+2018,Chicago Cubs,Lost WC
+2018,Chicago White Sox,
+2018,Cincinnati Reds,
+2018,Cleveland Indians,Lost Quarter
+2018,Colorado Rockies,Lost Quarter
+2018,Detroit Tigers,
+2018,Houston Astros,Lost Semi
+2018,Kansas City Royals,
+2018,Los Angeles Angels,
+2018,Los Angeles Dodgers,Lost WS
+2018,Miami Marlins,
+2018,Milwaukee Brewers,Lost Semi
+2018,Minnesota Twins,
+2018,New York Mets,
+2018,New York Yankees,Lost Quarter
+2018,Oakland Athletics,Lost WC
+2018,Philadelphia Phillies,
+2018,Pittsburgh Pirates,
+2018,San Diego Padres,
+2018,San Francisco Giants,
+2018,Seattle Mariners,
+2018,St. Louis Cardinals,
+2018,Tampa Bay Rays,
+2018,Texas Rangers,
+2018,Toronto Blue Jays,
+2018,Washington Nationals,
+2019,Arizona Diamondbacks,
+2019,Atlanta Braves,Lost Quarter
+2019,Baltimore Orioles,
+2019,Boston Red Sox,
+2019,Chicago Cubs,
+2019,Chicago White Sox,
+2019,Cincinnati Reds,
+2019,Cleveland Indians,
+2019,Colorado Rockies,
+2019,Detroit Tigers,
+2019,Houston Astros,Lost WS
+2019,Kansas City Royals,
+2019,Los Angeles Angels,
+2019,Los Angeles Dodgers,Lost Quarter
+2019,Miami Marlins,
+2019,Milwaukee Brewers,Lost WC
+2019,Minnesota Twins,Lost Quarter
+2019,New York Mets,
+2019,New York Yankees,Lost Semi
+2019,Oakland Athletics,Lost WC
+2019,Philadelphia Phillies,
+2019,Pittsburgh Pirates,
+2019,San Diego Padres,
+2019,San Francisco Giants,
+2019,Seattle Mariners,
+2019,St. Louis Cardinals,Lost Semi
+2019,Tampa Bay Rays,Lost Quarter
+2019,Texas Rangers,
+2019,Toronto Blue Jays,
+2019,Washington Nationals,Won WS

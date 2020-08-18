@@ -441,5 +441,6 @@ dat %>%
   geom_line(aes(x = date, y = qn_ghits), color = "deeppink") +
   geom_line(aes(x = date, y = lump_preds), color = "cornflowerblue")
 ```
+
 This is much better.
 

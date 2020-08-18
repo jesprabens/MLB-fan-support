@@ -24,7 +24,7 @@ library(modelr)
 ```{r}
 dat <- read_csv(here::here("combined_data.csv"))
 
-## Added new dataset for playoff
+## Added new dataset for playoff: MLB_Postseason_Success.csv
 # broken up into 6 different factors
 # - Won WS (1 team)
 # - Lost WS (1 team)
@@ -291,18 +291,20 @@ by_year <-
   ungroup()
 
 # NOTE to self: check this again to see if i did it right
-
-annual_means <- lm(ghits_e1 ~ odds + winpct + attendance + payroll + lag(ghits_e1, 1), data = by_year) ## this should be an AR model, annual
-
 # i used the lag function , but examples I see have used dynlm package
-  
+
+annual_means <- lm(ghits_e1 ~ odds + winpct + attendance + payroll + lag(ghits_e1, 1), data = by_year) ## this should be an AR model
+# annual_means <- lm(ghits_e1 ~ odds + winpct + attendance + payroll, data = by_year)
+
+
 
 summary(annual_means)
-
-
 ```
 
 Takeaway:  Payroll and winpct are a good predictor of annual ghits  
+
+UPDATE: What changed after adding the AR term lagging one year?
+Looks like odds,  winpct, and the lag are all good predictors of annual ghits now.  Payroll is no longer significant.
 
 ```{r}
 ## make new column of errors
@@ -321,6 +323,9 @@ dat %>%
 Much more evened out for Dodgers and Dbacks.  Why not for Cubs?  Probably because
 of the later increasing trend they have.
 
+UPDATE: What changed after adding AR term?
+Looks like heavier spikes on the under predictions? Note sure why the spikes are so sharp. Is that okay?  Looks more sporadic because the lag accounts for the yearly cycle.
+
 ---
 
 ## Model 3: Monthly
@@ -329,12 +334,15 @@ of the later increasing trend they have.
 final_model <- 
   dat  %>%
   lm(ghits_e2 ~ phase + is_playoffs:playoffs + lag(ghits_e2, 1), data = .) ## needs to be AR model instead, monthly
+  # lm(ghits_e2 ~ phase + is_playoffs:playoffs, data = .)
   
 
 summary(final_model)
 ```
 
 Takeaway:  More hits in bigger markets, as expected.
+
+UDPATE: Why is lost WS NA?  All variables are significant predictors of monthly ghits except winning WS.
 
 ```{r}
 ## make new column of errors
@@ -353,12 +361,16 @@ dat %>%
 
 Error seems a lot more random, which is the goal!
 
+UPDATE: What changed when I added the lag on the previous month?
+It seems like adding the lag term doesn't change this plot? Might be doing something wrong.
+
 ```{r}
 dat %>%
   filter(team %in% CA_teams) %>%
   ggplot(aes(x = date, y = ghits_e3, color = team)) +
   geom_line()
 ```
+
 ```{r}
 dat %>%
   filter(team %in% example_teams) %>%
@@ -400,6 +412,8 @@ dat %>%
 ```
 
 Seems to be underpredicting heavily when teams are bad.  Hmmmm.  Maybe the AR model will help that.
+
+UPDATE: AR did seem to help this underpredicting problem! The California team plot is much more sporadic.  The histograms are centered closer to 0.  And all the predictions seem to be closer than before!
 
 
 ---

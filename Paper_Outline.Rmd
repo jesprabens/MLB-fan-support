@@ -1,0 +1,102 @@
+---
+title: "Modeling Bandwagoning and Hype in the MLB"
+author: "Jake Esprabens and Kelly Bodwin"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+[Abstract]
+In this work, we model the Google search hits for MLB teams across a season as
+a function of team success...
+
+# Introduction
+
+[General Stuff about bandwagoning]
+
+The term "Bandwagon" is used in professional sports to refer to fans suddenly
+showing interest in a team when that team achieves success - i.e., "jumping on 
+the bandwagon" of the team.  ...
+
+
+In this paper, we establish a hierarchical time series model that borrows across
+data from all 30 MLB teams to predict internet search volume for a given team
+in a given month.  We use these models to address the following questions:
+
+1. Which MLB teams are more or less prone overall to attracting bandwagon fans?
+
+2. When in recent MLB history were there periods of overhype or underhype for a
+particular team?
+
+## The Data
+
+[where did we get it, etc]
+
+[small table snippet of dataset]
+
+Fig 1.
+
+[Brief discussion: note how there are consistent phases of the season, 
+but success strongly determines size of spike; e.g. Giants won in X years, 
+Dodgers won in Y years]
+
+### Google Trends Scaling
+
+[The problem of how gtrends reports relative to max value]
+
+Fig 2
+
+Through brute force exploration, we determined that the global maximum was set by
+searches for the Chicago Cubs in October 2016, during their historic World Series
+victory run.  Thus, data for all teams was recorded relative to this maximum;
+that is, a Google Hits measurement of 68 indicates that the team was searched
+68% as often as "Chicago Cubs" in October 2016.
+
+### Quantile Normalization
+
+Because of the unusual relative scaling of the data, and the magnitude of the
+spikes in interest during the World Series, this data is very skewed.
+
+Fig 3: Histogram of all gtrends obserations.
+
+The skew is too extreme to address with any common data transformations.  However,
+we assert that the raw data values are not meaningful in and of themselves, as
+they correspond to an arbitrary scale set by the most publicized month of baseball
+during the time window of the data collection.  Therefore, we opted for a data 
+transformation that retains the rank-ordering of the observations, but not the 
+scaling.  Google Hits values were quantile normalized (reference) before model building.
+
+### Season phases
+
+A third challenge of Google Trends as a data source is that data is aggregated
+monthly.  This allows us to track some nuance in annual patterns, but not at
+a game-specific level.
+
+Instead of predicting internet search volume by month, we include in our model
+a variable we call *Phase*.  The season is divided into four phases:
+
+* *Opening*: April
+* *Season*: May - Sept
+* *Playoffs*: October
+* *Off-Season:* Nov - March
+
+
+Fig 4
+
+
+## Model-Building
+
+
+## Measuring hype and bandwagoning
+
+
+## Conclusions
+
+
+## Future Work
+
+
+
+

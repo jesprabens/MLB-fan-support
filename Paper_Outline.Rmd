@@ -8,6 +8,11 @@ output: html_document
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
+```{r}
+library(tidyverse)
+library(gtrendsR)
+```
+
 [Abstract]
 In this work, we model the Google search hits for MLB teams across a season as
 a function of team success...
@@ -38,6 +43,20 @@ particular team?
 
 Fig 1.
 
+```{r}
+fig1_dat <- read.csv("combined_data.csv") %>%
+  mutate(date = as.Date(date)) %>%
+  filter(team == "Los Angeles Dodgers" | team == "San Francisco Giants")
+        
+
+fig1_dat %>%
+  ggplot(aes(x = as.Date(date), y = googlehits, group = team)) + 
+  geom_line(aes(color = team)) + 
+  theme_classic() +
+  labs(main="Google Trend of Dodgers and Giants", x = "Date", y = "Google Hits") + 
+  scale_color_manual(values=c("dodgerblue", "darkorange"))
+```
+
 [Brief discussion: note how there are consistent phases of the season, 
 but success strongly determines size of spike; e.g. Giants won in X years, 
 Dodgers won in Y years]
@@ -46,7 +65,44 @@ Dodgers won in Y years]
 
 [The problem of how gtrends reports relative to max value]
 
-Fig 2
+Fig 2.
+
+```{r}
+fig2a_dat <- gtrends(keyword = c("%2Fm%2F04mjl", "%2Fm%2F0713r"),geo = "US", time = "all")$interest_over_time %>%
+  mutate(team = keyword,
+         googlehits = hits,
+         team = (gsub("%2Fm%2F04mjl","Los Angeles Dodgers", team)),
+         team = (gsub("%2Fm%2F0713r","San Francisco Giants", team))) %>%
+  select(date, googlehits, team)
+         
+
+
+fig2a_dat %>%
+  ggplot(aes(x = as.Date(date), y = googlehits, group = team)) + 
+  geom_line(aes(color = team)) + 
+  theme_classic() +
+  labs(main="Google Trend of Dodgers and Giants", x = "Date", y = "Google Hits") + 
+  scale_color_manual(values=c("dodgerblue", "darkorange"))
+```
+
+```{r}
+fig2b_dat <- gtrends(keyword = c("%2Fm%2F04mjl", "%2Fm%2F01yjl"),geo = "US", time = "all")$interest_over_time %>%
+  mutate(team = keyword,
+         googlehits = hits,
+         team = (gsub("%2Fm%2F04mjl","Los Angeles Dodgers", team)),
+         team = (gsub("%2Fm%2F01yjl","Chicago Cubs", team))) %>%
+  select(date, googlehits, team)
+         
+
+
+fig2b_dat %>%
+  ggplot(aes(x = as.Date(date), y = googlehits, group = team)) + 
+  geom_line(aes(color = team)) + 
+  theme_classic() +
+  labs(main="Google Trend of Dodgers and Cubs", x = "Date", y = "Google Hits") + 
+  scale_color_manual(values=c("firebrick2", "dodgerblue"))
+```
+
 
 Through brute force exploration, we determined that the global maximum was set by
 searches for the Chicago Cubs in October 2016, during their historic World Series

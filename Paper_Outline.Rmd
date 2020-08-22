@@ -52,8 +52,8 @@ fig1_dat <- read.csv("combined_data.csv") %>%
 fig1_dat %>%
   ggplot(aes(x = as.Date(date), y = googlehits, group = team)) + 
   geom_line(aes(color = team)) + 
-  theme_classic() +
-  labs(main="Google Trend of Dodgers and Giants", x = "Date", y = "Google Hits") + 
+  theme_minimal() +
+  labs(title="Google Trend of Dodgers and Giants", x = "Date", y = "Google Hits") + 
   scale_color_manual(values=c("dodgerblue", "darkorange"))
 ```
 
@@ -80,8 +80,8 @@ fig2a_dat <- gtrends(keyword = c("%2Fm%2F04mjl", "%2Fm%2F0713r"),geo = "US", tim
 fig2a_dat %>%
   ggplot(aes(x = as.Date(date), y = googlehits, group = team)) + 
   geom_line(aes(color = team)) + 
-  theme_classic() +
-  labs(main="Google Trend of Dodgers and Giants", x = "Date", y = "Google Hits") + 
+  theme_minimal() +
+  labs(title="Google Trend of Dodgers and Giants", x = "Date", y = "Google Hits") + 
   scale_color_manual(values=c("dodgerblue", "darkorange"))
 ```
 
@@ -98,8 +98,8 @@ fig2b_dat <- gtrends(keyword = c("%2Fm%2F04mjl", "%2Fm%2F01yjl"),geo = "US", tim
 fig2b_dat %>%
   ggplot(aes(x = as.Date(date), y = googlehits, group = team)) + 
   geom_line(aes(color = team)) + 
-  theme_classic() +
-  labs(main="Google Trend of Dodgers and Cubs", x = "Date", y = "Google Hits") + 
+  theme_minimal() +
+  labs(title="Google Trend of Dodgers and Cubs", x = "Date", y = "Google Hits") + 
   scale_color_manual(values=c("firebrick2", "dodgerblue"))
 ```
 
@@ -116,6 +116,34 @@ Because of the unusual relative scaling of the data, and the magnitude of the
 spikes in interest during the World Series, this data is very skewed.
 
 Fig 3: Histogram of all gtrends obserations.
+
+```{r}
+fig3_dat <- read.csv("combined_data.csv")
+
+fig3_dat %>%
+  ggplot(aes(x = googlehits)) + 
+  geom_histogram(bins = 30,
+                 col = "dodgerblue4",
+                 fill = "dodgerblue",
+                 alpha = 0.7) +
+  theme_minimal() + 
+  theme(axis.title.y=element_blank()) + 
+  labs(main = "Google Trend Hits", x = "Google Hits")
+
+```
+
+```{r}
+fig3_dat %>%
+  ggplot(aes(x = log(googlehits))) + 
+  geom_histogram(bins = 10,
+                 col = "dodgerblue4",
+                 fill = "dodgerblue",
+                 alpha = 0.7) +
+  theme_minimal() + 
+  theme(axis.title.y=element_blank()) + 
+  labs(main = "Google Trend Hits", x = "Google Hits")
+```
+
 
 The skew is too extreme to address with any common data transformations.  However,
 we assert that the raw data values are not meaningful in and of themselves, as

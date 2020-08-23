@@ -135,6 +135,7 @@ dat <- dat %>%
     qn_ghits = quant_norm(googlehits)
   )
 
+write.csv(dat, "C:/Users/espra/OneDrive/Documents/CP/Research - Bandwagon/MLB-fan-support/plotting_data.csv")
 ```
 
 

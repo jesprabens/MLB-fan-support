@@ -128,7 +128,7 @@ fig3_dat %>%
                  alpha = 0.7) +
   theme_minimal() + 
   theme(axis.title.y=element_blank()) + 
-  labs(main = "Google Trend Hits", x = "Google Hits")
+  labs(title = "Google Trend Hits", x = "Google Hits")
 
 ```
 
@@ -141,7 +141,7 @@ fig3_dat %>%
                  alpha = 0.7) +
   theme_minimal() + 
   theme(axis.title.y=element_blank()) + 
-  labs(main = "Google Trend Hits", x = "Google Hits")
+  labs(title = "Google Trend Hits", x = "Google Hits")
 ```
 
 
@@ -168,6 +168,48 @@ a variable we call *Phase*.  The season is divided into four phases:
 
 
 Fig 4
+
+```{r}
+fig4_dat <- read.csv("plotting_data.csv") %>%
+  mutate(date = as.Date(date),
+         month = as.month(month))
+
+# giants - quantile normalized hits plot for last 5 years
+fig4_dat %>%
+  filter(team == "San Francisco Giants",
+         date <= as.Date("2020-07-01") & date >= as.Date("2015-07-01")) %>%
+  ggplot(aes(x = date, y = qn_ghits)) +
+  geom_line(col = "darkorange") +
+  theme_minimal() +
+  labs(title = "San Francisco Giants")
+
+# giants - monthly average hits over ALL years with phases
+fig4_dat %>%
+  filter(team == "San Francisco Giants") %>% 
+  group_by(month) %>%
+  summarise(monthly_avg = mean(googlehits)) %>%
+  ggplot(aes(x = month, y = monthly_avg)) +
+  geom_line(col = "darkorange") +
+  xlim(1,12) + 
+  geom_vline(xintercept = c(4,10), linetype = "dashed", color = "black") + 
+  geom_text(aes(x=2, y=7, label = "Off-Season")) +
+  geom_text(aes(x=4, y=7, label = "Opening Day\n"), angle = 90) + 
+  geom_text(aes(x=7, y=7, label = "Season")) + 
+  geom_text(aes(x=10, y=7, label = "Post-Season\n"), angle = 90) + 
+  geom_text(aes(x=11.5, y=7, label = "Off-Season"))
+  # geom_vline(xintercept = 10, linetype = "dashed", color = "black") + 
+  # geom_vline
+```
+
+```{r}
+# padres
+fig4_dat %>%
+  filter(team == "San Diego Padres") %>%
+  ggplot(aes(x = date, y = googlehits)) +
+  geom_line(col = "tan4") +
+  theme_minimal() +
+  labs(title = "San Diego Padres")
+```
 
 
 ## Model-Building

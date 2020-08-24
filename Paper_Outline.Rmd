@@ -54,10 +54,13 @@ fig1_dat %>%
   geom_line(aes(color = team)) + 
   theme_minimal() +
   labs(title="Google Trend of Dodgers and Giants", x = "Date", y = "Google Hits") + 
-  scale_color_manual(values=c("dodgerblue", "darkorange"))
+  scale_color_manual(values=c("dodgerblue", "darkorange")) +
+  theme(panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank())
 ```
 
-[Brief discussion: note how there are consistent phases of the season, 
+  theme(panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank())[Brief discussion: note how there are consistent phases of the season, 
 but success strongly determines size of spike; e.g. Giants won in X years, 
 Dodgers won in Y years]
 
@@ -82,7 +85,9 @@ fig2a_dat %>%
   geom_line(aes(color = team)) + 
   theme_minimal() +
   labs(title="Google Trend of Dodgers and Giants", x = "Date", y = "Google Hits") + 
-  scale_color_manual(values=c("dodgerblue", "darkorange"))
+  scale_color_manual(values=c("dodgerblue", "darkorange")) +
+  theme(panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank())
 ```
 
 ```{r}
@@ -100,7 +105,10 @@ fig2b_dat %>%
   geom_line(aes(color = team)) + 
   theme_minimal() +
   labs(title="Google Trend of Dodgers and Cubs", x = "Date", y = "Google Hits") + 
-  scale_color_manual(values=c("firebrick2", "dodgerblue"))
+  scale_color_manual(values=c("firebrick2", "dodgerblue")) +
+  theme(panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank()) 
+  
 ```
 
 
@@ -171,8 +179,7 @@ Fig 4
 
 ```{r}
 fig4_dat <- read.csv("plotting_data.csv") %>%
-  mutate(date = as.Date(date),
-         month = as.month(month))
+  mutate(date = as.Date(date))
 
 # giants - quantile normalized hits plot for last 5 years
 fig4_dat %>%
@@ -181,34 +188,44 @@ fig4_dat %>%
   ggplot(aes(x = date, y = qn_ghits)) +
   geom_line(col = "darkorange") +
   theme_minimal() +
-  labs(title = "San Francisco Giants")
+  labs(title = "San Francisco Giants") + 
+  theme(panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank())
 
 # giants - monthly average hits over ALL years with phases
 fig4_dat %>%
   filter(team == "San Francisco Giants") %>% 
   group_by(month) %>%
   summarise(monthly_avg = mean(googlehits)) %>%
-  ggplot(aes(x = month, y = monthly_avg)) +
-  geom_line(col = "darkorange") +
-  xlim(1,12) + 
+  ggplot(aes(x = as.factor(month), y = monthly_avg, group = 1)) +
+  geom_point(col = "darkorange") +
+  geom_line(col = "darkorange") + 
+  theme_minimal() +
   geom_vline(xintercept = c(4,10), linetype = "dashed", color = "black") + 
   geom_text(aes(x=2, y=7, label = "Off-Season")) +
+  geom_text(aes(x=11.5, y=7, label = "Off-Season")) +
   geom_text(aes(x=4, y=7, label = "Opening Day\n"), angle = 90) + 
   geom_text(aes(x=7, y=7, label = "Season")) + 
   geom_text(aes(x=10, y=7, label = "Post-Season\n"), angle = 90) + 
-  geom_text(aes(x=11.5, y=7, label = "Off-Season"))
-  # geom_vline(xintercept = 10, linetype = "dashed", color = "black") + 
-  # geom_vline
+  labs(title = "Monthly Average of Google Trend Hits for SF Giants (2004 - Present)") + 
+  scale_x_discrete(labels = month.abb[c(1:12)]) + 
+  theme(axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        panel.grid.major.x = element_blank()) 
+
 ```
 
 ```{r}
-# padres
+# Mariners - quantile normalized hits plot for last 5 years
 fig4_dat %>%
-  filter(team == "San Diego Padres") %>%
-  ggplot(aes(x = date, y = googlehits)) +
-  geom_line(col = "tan4") +
+  filter(team == "Seattle Mariners",
+         date <= as.Date("2020-07-01") & date >= as.Date("2015-07-01")) %>%
+  ggplot(aes(x = date, y = qn_ghits)) +
+  geom_line(col = "cyan4") +
   theme_minimal() +
-  labs(title = "San Diego Padres")
+  labs(title = "Seattle Mariners") + 
+  theme(panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank())
 ```
 
 

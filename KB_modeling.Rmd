@@ -33,17 +33,17 @@ dat <- read_csv(here::here("combined_data.csv"))
 # - Lost WC (2 teams)    NOTE: wildcard game started in 2012 so this variable is only from 2012-2019.
 # - No Playoffs (22 teams from 2004-2011 and 20 teams from 2012-2019)
 
-playoff_success <- read.csv("MLB_Postseason_Success.csv", stringsAsFactors = FALSE) %>%
+playoff_success <- read_csv("MLB_Postseason_Success.csv") %>%
   mutate_all(na_if,"") %>%
   replace(is.na(.), "No Playoffs")
 
 #combining new palyoff dataset with dat
-dat <- left_join(dat, playoff_success, by = c("team", "year")) %>%
-  select(-c(DivWin, WCWin, LgWin, WSWin)) # deselecting unnecessary variables
+dat <- dat %>% 
+  left_join(playoff_success, by = c("team", "year"))
 
 
 dat <- dat %>%
-  # mutate_at(vars(DivWin, WCWin, LgWin, WSWin), funs(as.logical)) %>%
+  select(-c(DivWin, WCWin, LgWin, WSWin)) %>%
   mutate(
   #   playoffs = case_when(
   #     WSWin ~ "Won WS",
@@ -54,7 +54,7 @@ dat <- dat %>%
   #   ),
     playoffs = forcats::fct_inorder(playoffs), # not exactly sure what this line of code does? do we still need?
     phase = case_when(
-      month < 04 | month > 10 ~ "Summer",
+      month < 04 | month > 10 ~ "Off-Season",
       month == 04 ~ "Opening",
       month < 10 & month > 04 ~ "Season",
       month == 10 ~ "Playoffs"
@@ -65,6 +65,9 @@ dat <- dat %>%
   mutate_at(vars(month, year, team), funs(factor))
 
 summary(dat$playoffs)
+
+dat %>%
+  write_csv("MLB_combined.csv")
 ```
 
 
@@ -443,4 +446,7 @@ dat %>%
 ```
 
 This is much better.
+
+
+
 

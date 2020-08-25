@@ -1,0 +1,260 @@
+---
+title: "Untitled"
+author: "Kelly Bodwin"
+date: "8/24/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r libs}
+library(tidyverse)
+library(tidymodels)
+```
+
+```{r read data}
+quant_norm <- function(vec){
+  
+  quants <- rank(vec)/(length(vec) + 1)
+  normies <- purrr::map_dbl(quants, qnorm)
+  
+  return(normies)
+  
+}
+
+
+dat_orig <- read_csv(here::here("MLB_combined.csv")) 
+```
+
+```{r data prep}
+mlb_hype <- read_csv("mlb_hype.csv")
+
+mlb_hype <- mlb_hype %>%
+  mutate(
+    Month = paste0(Month, "-01"),
+    date = ymd(Month)
+  )
+
+
+dat <- dat_orig %>%
+  left_join(mlb_hype) %>%
+  mutate(
+    googlehits_orig = googlehits,
+    googlehits = quant_norm(googlehits),
+    mlb_searches_orig = mlb_searches,
+    mlb_searches = quant_norm(mlb_searches),
+    playoffs = factor(playoffs, 
+                      levels = c("No Playoffs", "Lost WC", "Lost Quarter", "Lost Semi", "Lost WS", "Won WS"))
+  ) 
+
+# 
+# dat_split <- initial_split(dat)
+# 
+# train_dat <- training(dat_split)
+# test_dat <- testing(dat_split)
+```
+
+## Notes
+
+Why might a team have higher google hits in a given month?
+
+* *Market Size*:  More fans = more people googling.
+
+* *Leaguewide Interest*:  More people follow baseball during the playoffs.
+
+* *Prior Performance:*  A team that wins the WS will be followed more closely the next year.
+
+* *Expectations*: A team that is considered likely to content is in the news more.
+
+* *Recent Performance:* A team on a hot streak will be in the news.
+
+* *Special Events:* A trade, an off-field scandal, etc.
+
+
+
+Predict each month based on these things?
+
+```{r}
+dat %>%
+  mutate(
+    mlb_searches = quant_norm(mlb_searches)
+  ) %>%
+  filter(team %in% c("San Francisco Giants", "Chicago Cubs")) %>%
+  ggplot(aes(x = date, y = googlehits, color = team)) +
+  geom_line() +
+  geom_line(aes(x = date, y = mlb_searches), color = "black")
+```
+
+
+```{r}
+dat_overall <- dat %>%
+  group_by(team) %>%
+  summarize(
+    ghits_overall = mean(googlehits),
+    propTVMarketSize = propTVMarketSize[1]
+  ) %>%
+  ungroup()
+
+dat_annual <- dat %>%
+  group_by(team, year) %>%
+  summarize(
+    ghits_annual = mean(googlehits),
+    mlb_annual = mean(mlb_searches),
+    propTVMarketSize = propTVMarketSize[1],
+    playoffs = playoffs[1],
+    odds = odds[1],
+    winpct = winpct[1],
+    attendance = attendance[1],
+    payroll = payroll[1]
+  ) %>%
+  ungroup()
+
+dat_annual <- dat_overall %>%
+  select(team, ghits_overall) %>%
+  right_join(dat_annual)
+
+
+dat <- dat_annual %>%
+  select(team, year, ghits_annual, mlb_annual, ghits_overall) %>%
+  right_join(dat)
+```
+
+
+```{r overall model}
+fit_overall <- lm(ghits_overall ~ propTVMarketSize,
+                      data = dat_overall)
+
+dat_annual <- dat_annual %>%
+  add_predictions(
+    fit_overall,
+    var = "pred_overall"
+  ) %>%
+  mutate(
+    resid_annual = ghits_annual - pred_overall
+  )
+```
+
+
+```{r annual model}
+fit_annual <- lm(resid_annual ~ mlb_annual + 
+                   lag(ghits_annual) + 
+                   lag(playoffs) + lag(winpct) + lag(attendance) +
+                   odds + payroll,
+                      data = dat_annual) 
+
+dat <- dat %>%
+  add_predictions(
+    fit_overall,
+    var = "pred_overall"
+  ) %>%
+  add_predictions(
+    fit_annual,
+    var = "pred_resid_annual"
+  ) %>%
+  mutate(
+    pred_annual = pred_overall + pred_resid_annual,
+    resid = googlehits - pred_annual
+  )
+```
+
+
+```{r monthly model}
+fit_monthly <- lm(resid ~ mlb_searches + lag(googlehits) + 
+                        phase*(winpct + attendance) + is_playoffs:playoffs,
+                      data = dat) 
+
+
+dat <- dat %>%
+  add_predictions(
+    fit_monthly,
+    var = "pred_resid"
+  ) %>%
+  mutate(
+    pred = pred_overall + pred_resid_annual + pred_resid,
+    resid_final = googlehits - pred
+  )
+```
+
+
+```{r final resids}
+dat %>%
+  filter(team %in% c("San Francisco Giants", "Los Angeles Dodgers", "San Diego Padres")) %>%
+  ggplot(aes(x = date, y = resid_final, color = team)) +
+  geom_line()
+
+
+dat %>%
+  filter(team %in% c("San Francisco Giants")) %>%
+  ggplot() +
+  geom_line(aes(x = date, y = googlehits), color = "black") +
+  geom_line(aes(x = date, y = pred), color = "red")
+
+dat %>%
+  filter(team %in% c("Chicago Cubs")) %>%
+  ggplot() +
+  geom_line(aes(x = date, y = googlehits), color = "black") +
+  geom_line(aes(x = date, y = pred), color = "red")
+```
+
+
+
+
+$$\text{\{Google Hits\}}_i \sim \alpha_i \, \text{\{TV Market Size\}_i} + E_1 + \epsilon_1$$
+
+where $\epsilon \sim N(0, \sigma^2)$
+
+$$E_{1ij} \sim \gamma_{ij} ... + E_2$$
+
+## Team-specific
+
+```{r}
+lm(resid_final ~ team:phase, data = dat)
+```
+
+
+
+## Extra
+
+```{r}
+dat %>%
+  filter(phase == "Playoffs") %>%
+  lm(googlehits ~ propTVMarketSize+ playoffs + winpct, data = .) %>% 
+  tidy() %>%
+  ggplot(aes(x = fct_inorder(term), y = estimate)) +
+  geom_col()
+
+
+dat %>%
+  filter(phase == "Season") %>%
+  lm(googlehits ~ propTVMarketSize + attendance + odds + winpct, data = .) %>% 
+  tidy() %>%
+  ggplot(aes(x = fct_inorder(term), y = estimate)) +
+  geom_col()
+```
+
+```{r}
+by_phase <- dat %>%
+  mutate(
+    year = year(date)
+  ) %>%
+  drop_na() %>%
+  group_by(team, year) %>%
+  mutate(googlehits = scale(googlehits)) %>%
+  group_by(team, year, phase) %>%
+  summarize(hits = mean(googlehits)) %>%
+  pivot_wider(names_from = phase, 
+              values_from = hits) %>%
+  ungroup() 
+
+plot(by_phase$Playoffs, by_phase$Season)
+
+by_phase %>%
+  select(Opening, Playoffs, Season, `Off-Season`) %>%
+  drop_na() %>%
+  as.matrix() %>%
+  cor()
+```
+
+

@@ -14,8 +14,7 @@ library(gtrendsR)
 ```
 
 [Abstract]
-In this work, we model the Google search hits for MLB teams across a season as
-a function of team success...
+“Hopping on the bandwagon” is a familiar phrase used to describe a person that follows a trend or believes in an idea solely because it is becoming popular.  The bandwagon effect is very common when describing fans in professional sports, including Major League Baseball. (Talk about Past Bandwagon Studies?) In this work, we model the Google search hits for MLB teams across a season as a function of team success.  Using a hierarchical time series model, we are able to explore which MLB teams attract the most “bandwagon” fans and when MLB teams are overhyped or underhyped? We defined a “hype” moment as an unusual spike in Google searches at a specific time for a team.  The creation of this model required gathering the Google search hits data from Google Trends for each MLB team and collecting other baseball-related data to be used as exogenous variables. (More Model Building) (Results and Conclusion)
 
 # Introduction
 
@@ -52,15 +51,17 @@ fig1_dat <- read.csv("combined_data.csv") %>%
 fig1_dat %>%
   ggplot(aes(x = as.Date(date), y = googlehits, group = team)) + 
   geom_line(aes(color = team)) + 
-  theme_minimal() +
-  labs(title="Google Trend of Dodgers and Giants", x = "Date", y = "Google Hits") + 
+  labs(title="Google Trend of LA Dodgers and SF Giants", x = "Date", y = "Google Hits") + 
   scale_color_manual(values=c("dodgerblue", "darkorange")) +
-  theme(panel.grid.major.x = element_blank(),
-        panel.grid.minor.x = element_blank())
+  theme_minimal()+
+  theme(legend.position = "top",
+        legend.title = element_blank(),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.border = element_rect(colour = "black", fill = NA))
 ```
 
-  theme(panel.grid.major.x = element_blank(),
-        panel.grid.minor.x = element_blank())[Brief discussion: note how there are consistent phases of the season, 
+[Brief discussion: note how there are consistent phases of the season, 
 but success strongly determines size of spike; e.g. Giants won in X years, 
 Dodgers won in Y years]
 
@@ -86,8 +87,11 @@ fig2a_dat %>%
   theme_minimal() +
   labs(title="Google Trend of Dodgers and Giants", x = "Date", y = "Google Hits") + 
   scale_color_manual(values=c("dodgerblue", "darkorange")) +
-  theme(panel.grid.major.x = element_blank(),
-        panel.grid.minor.x = element_blank())
+  theme(legend.position = "top",
+        legend.title = element_blank(),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.border = element_rect(colour = "black", fill = NA))
 ```
 
 ```{r}
@@ -106,8 +110,11 @@ fig2b_dat %>%
   theme_minimal() +
   labs(title="Google Trend of Dodgers and Cubs", x = "Date", y = "Google Hits") + 
   scale_color_manual(values=c("firebrick2", "dodgerblue")) +
-  theme(panel.grid.major.x = element_blank(),
-        panel.grid.minor.x = element_blank()) 
+  theme(legend.position = "top",
+        legend.title = element_blank(),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.border = element_rect(colour = "black", fill = NA))
   
 ```
 
@@ -130,26 +137,39 @@ fig3_dat <- read.csv("combined_data.csv")
 
 fig3_dat %>%
   ggplot(aes(x = googlehits)) + 
-  geom_histogram(bins = 30,
-                 col = "dodgerblue4",
-                 fill = "dodgerblue",
-                 alpha = 0.7) +
-  theme_minimal() + 
-  theme(axis.title.y=element_blank()) + 
-  labs(title = "Google Trend Hits", x = "Google Hits")
-
+  geom_histogram(bins = 20,
+                 col = "azure4",
+                 fill = "azure3") +
+  labs(title = "Google Trend Hits for All MLB Teams", x = "Google Hits") + 
+  scale_y_continuous(expand = c(0,0), limits = c(0, 4300)) +
+  theme(axis.title.y=element_blank(),
+        panel.grid.major.x = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.border = element_rect(colour = "black", fill = NA),
+        panel.background = element_rect(fill = "white"),
+        plot.background = element_rect(fill = "azure3")
+        ) 
 ```
 
 ```{r}
 fig3_dat %>%
   ggplot(aes(x = log(googlehits))) + 
   geom_histogram(bins = 10,
-                 col = "dodgerblue4",
-                 fill = "dodgerblue",
-                 alpha = 0.7) +
-  theme_minimal() + 
-  theme(axis.title.y=element_blank()) + 
-  labs(title = "Google Trend Hits", x = "Google Hits")
+                 col = "azure4",
+                 fill = "azure3") +
+  labs(title = "Log Google Trend Hits for All MLB Teams", x = "Log Google Hits") + 
+  scale_y_continuous(expand = c(0,0), limits = c(0, 2200)) +
+  theme(axis.title.y=element_blank(),
+        panel.grid.major.x = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.border = element_rect(colour = "black", fill = NA),
+        panel.background = element_rect(fill = "white"),
+        plot.background = element_rect(fill = "azure3")
+        ) 
 ```
 
 
@@ -187,10 +207,15 @@ fig4_dat %>%
          date <= as.Date("2020-07-01") & date >= as.Date("2015-07-01")) %>%
   ggplot(aes(x = date, y = qn_ghits)) +
   geom_line(col = "darkorange") +
-  theme_minimal() +
-  labs(title = "San Francisco Giants") + 
-  theme(panel.grid.major.x = element_blank(),
-        panel.grid.minor.x = element_blank())
+  labs(title = "Quantile-Normalized Google Trend Hits for SF Giants (Past 5 Years)") + 
+  theme(plot.title = element_text(face = "bold"),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.border = element_rect(colour = "black", fill = NA),
+        panel.background = element_rect(fill = "gray90"),
+        plot.background = element_rect(fill = "darkorange")) 
 
 # giants - monthly average hits over ALL years with phases
 fig4_dat %>%
@@ -200,7 +225,6 @@ fig4_dat %>%
   ggplot(aes(x = as.factor(month), y = monthly_avg, group = 1)) +
   geom_point(col = "darkorange") +
   geom_line(col = "darkorange") + 
-  theme_minimal() +
   geom_vline(xintercept = c(4,10), linetype = "dashed", color = "black") + 
   geom_text(aes(x=2, y=7, label = "Off-Season")) +
   geom_text(aes(x=11.5, y=7, label = "Off-Season")) +
@@ -209,9 +233,13 @@ fig4_dat %>%
   geom_text(aes(x=10, y=7, label = "Post-Season\n"), angle = 90) + 
   labs(title = "Monthly Average of Google Trend Hits for SF Giants (2004 - Present)") + 
   scale_x_discrete(labels = month.abb[c(1:12)]) + 
-  theme(axis.title.x = element_blank(),
+  theme(plot.title = element_text(face = "bold"),
+        axis.title.x = element_blank(),
         axis.title.y = element_blank(),
-        panel.grid.major.x = element_blank()) 
+        panel.grid.major.x = element_blank(),
+        panel.border = element_rect(colour = "black", fill = NA),
+        panel.background = element_rect(fill = "gray90"),
+        plot.background = element_rect(fill = "darkorange")) 
 
 ```
 
@@ -222,12 +250,84 @@ fig4_dat %>%
          date <= as.Date("2020-07-01") & date >= as.Date("2015-07-01")) %>%
   ggplot(aes(x = date, y = qn_ghits)) +
   geom_line(col = "cyan4") +
-  theme_minimal() +
-  labs(title = "Seattle Mariners") + 
-  theme(panel.grid.major.x = element_blank(),
-        panel.grid.minor.x = element_blank())
+  labs(title = "Quantile-Normalized Google Trend Hits for SEA Mariners (Past 5 Years)") + 
+  theme(plot.title = element_text(face = "bold"),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.border = element_rect(colour = "black", fill = NA),
+        panel.background = element_rect(fill = "gray90"),
+        plot.background = element_rect(fill = "cyan4")) 
+
+# Mariners - monthly average hits over ALL years with phases
+fig4_dat %>%
+  filter(team == "Seattle Mariners") %>% 
+  group_by(month) %>%
+  summarise(monthly_avg = mean(googlehits)) %>%
+  ggplot(aes(x = as.factor(month), y = monthly_avg, group = 1)) +
+  geom_point(col = "cyan4") +
+  geom_line(col = "cyan4") + 
+  geom_vline(xintercept = c(4,10), linetype = "dashed", color = "black") + 
+  geom_text(aes(x=2, y=2, label = "Off-Season")) +
+  geom_text(aes(x=11.5, y=2, label = "Off-Season")) +
+  geom_text(aes(x=4, y=2, label = "Opening Day\n"), angle = 90) + 
+  geom_text(aes(x=7, y=2, label = "Season")) + 
+  geom_text(aes(x=10, y=2, label = "Post-Season\n"), angle = 90) + 
+  labs(title = "Monthly Average of Google Trend Hits for SEA Mariners (2004 - Present)") + 
+  scale_x_discrete(labels = month.abb[c(1:12)]) + 
+  theme(plot.title = element_text(face = "bold"),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        panel.grid.major.x = element_blank(),
+        panel.border = element_rect(colour = "black", fill = NA),
+        panel.background = element_rect(fill = "gray90"),
+        plot.background = element_rect(fill = "cyan4")) 
+
 ```
 
+```{r}
+# ALL TEAMS - quantile normalized hits plot for last 5 years
+fig4_dat %>%
+  filter(date <= as.Date("2020-07-01") & date >= as.Date("2015-07-01")) %>%
+  group_by(date) %>%
+  summarise(avg_qn_ghits = mean(qn_ghits)) %>%
+  ggplot(aes(x = date, y = avg_qn_ghits)) +
+  geom_line(col = "azure4") +
+  labs(title = "Average Quantile-Normalized Google Trend Hits for MLB Teams (Past 5 Years)") + 
+  theme(plot.title = element_text(face = "bold", size = 13),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.border = element_rect(colour = "black", fill = NA),
+        panel.background = element_rect(fill = "gray90"),
+        plot.background = element_rect(fill = "azure3")) 
+
+# ALL TEAMS - monthly average hits over ALL years with phases
+fig4_dat %>%
+  group_by(month) %>%
+  summarise(monthly_avg = mean(googlehits)) %>%
+  ggplot(aes(x = as.factor(month), y = monthly_avg, group = 1)) +
+  geom_point(col = "azure4") +
+  geom_line(col = "azure4") + 
+  geom_vline(xintercept = c(4,10), linetype = "dashed", color = "black") + 
+  geom_text(aes(x=2, y=3.5, label = "Off-Season")) +
+  geom_text(aes(x=11.5, y=3.5, label = "Off-Season")) +
+  geom_text(aes(x=4, y=3.5, label = "Opening Day\n"), angle = 90) + 
+  geom_text(aes(x=7, y=3.5, label = "Season")) + 
+  geom_text(aes(x=10, y=3.5, label = "Post-Season\n"), angle = 90) + 
+  labs(title = "Monthly Average of Google Trend Hits for MLB Teams (2004 - Present)") + 
+  scale_x_discrete(labels = month.abb[c(1:12)]) + 
+  theme(plot.title = element_text(face = "bold"),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        panel.grid.major.x = element_blank(),
+        panel.border = element_rect(colour = "black", fill = NA),
+        panel.background = element_rect(fill = "gray90"),
+        plot.background = element_rect(fill = "azure3")) 
+
+```
 
 ## Model-Building
 

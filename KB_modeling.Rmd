@@ -138,6 +138,7 @@ dat <- dat %>%
     qn_ghits = quant_norm(googlehits)
   )
 
+write.csv(dat, "C:/Users/espra/OneDrive/Documents/CP/Research - Bandwagon/MLB-fan-support/plotting_data.csv")
 ```
 
 
@@ -320,7 +321,7 @@ dat <- dat %>%
 dat %>%
   filter(team %in% example_teams) %>%
   ggplot(aes(x = date, y = ghits_e2, color = team)) +
-  geom_line()
+  geom_line() +
 ```
 
 Much more evened out for Dodgers and Dbacks.  Why not for Cubs?  Probably because
@@ -336,7 +337,7 @@ Looks like heavier spikes on the under predictions? Note sure why the spikes are
 ```{r}
 final_model <- 
   dat  %>%
-  lm(ghits_e2 ~ phase + is_playoffs:playoffs + lag(ghits_e2, 1), data = .) ## needs to be AR model instead, monthly
+  lm(ghits_e2 ~ phase + is_playoffs:playoffs + lag(ghits_e2, 12), data = .) ## needs to be AR model instead, monthly
   # lm(ghits_e2 ~ phase + is_playoffs:playoffs, data = .)
   
 
@@ -357,7 +358,8 @@ dat <- dat %>%
   )
 
 dat %>%
-  filter(team %in% example_teams) %>%
+  filter(team == "Arizona Diamondbacks") %>%
+  # filter(team %in% example_teams) %>%
   ggplot(aes(x = date, y = ghits_e3, color = team)) +
   geom_line()
 ```

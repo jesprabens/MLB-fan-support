@@ -15,17 +15,17 @@ library(gtrendsR)
 
 [Abstract]
 “Hopping on the bandwagon” is a familiar phrase used to describe a person that 
-follows a trend or believes in an idea solely because it is becoming popular. 
-The bandwagon effect is very common when describing fans in professional sports,
-including Major League Baseball. (Talk about Past Bandwagon Studies?) In this 
-work, we model the Google search hits for MLB teams across a season as a function 
-of team success.  Using a hierarchical time series model, we are able to explore
-which MLB teams attract the most “bandwagon” fans and when MLB teams are overhyped
-or underhyped? We defined a “hype” moment as an unusual spike in Google searches 
-at a specific time for a team.  The creation of this model required gathering the 
-Google search hits data from Google Trends for each MLB team and collecting other 
-baseball-related data to be used as exogenous variables. (More Model Building) 
-(Results and Conclusion)
+follows a trend, believes in an idea, or supports a team solely because it is 
+becoming popular. The bandwagon effect is very common when describing fans in 
+professional sports, including Major League Baseball. (Talk about Past Bandwagon 
+Studies?) In this work, we model the Google search hits for MLB teams across a 
+season as a function of team success.  Using a hierarchical time series model, we 
+are able to explorewhich MLB teams attract the most “bandwagon” fans and when MLB 
+teams are overhypedor underhyped. We defined a “hype” moment as an unusual spike 
+in Google searches at a specific time for a team.  The creation of this model 
+required gathering the Google search hits data from Google Trends for each MLB 
+team and collecting other baseball-related data to be used as exogenous 
+variables. (...More Model Building) (...Results and Conclusion)
 
 # Introduction
 

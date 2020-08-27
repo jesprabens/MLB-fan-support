@@ -65,11 +65,13 @@ fig1_dat %>%
   labs(title="Google Trend of LA Dodgers and SF Giants", x = "Date", y = "Google Hits") + 
   scale_color_manual(values=c("dodgerblue", "darkorange")) +
   theme_minimal()+
-  theme(legend.position = "top",
-        legend.title = element_blank(),
+  annotate(geom="text",x=as.Date("2012-10-01"), y=33,label="SF Giants", col = "darkorange", fontface = "bold", size = 3.5) + 
+  annotate(geom="text",x=as.Date("2017-01-01"), y=52,label="LA Dodgers", col = "dodgerblue", fontface = "bold", size = 3.5) + 
+  theme(legend.position = "none",
         panel.grid.major.x = element_blank(),
         panel.grid.minor.x = element_blank(),
-        panel.border = element_rect(colour = "black", fill = NA))
+        # panel.grid.minor.y = element_blank(),
+        panel.border = element_rect(colour = "gray85", fill = NA))
 ```
 
 [Brief discussion: note how there are consistent phases of the season, 
@@ -96,13 +98,14 @@ fig2a_dat %>%
   ggplot(aes(x = as.Date(date), y = googlehits, group = team)) + 
   geom_line(aes(color = team)) + 
   theme_minimal() +
-  labs(title="Google Trend of Dodgers and Giants", x = "Date", y = "Google Hits") + 
+  labs(title="Google Trend of LA Dodgers and SF Giants", x = "Date", y = "Google Hits") + 
   scale_color_manual(values=c("dodgerblue", "darkorange")) +
-  theme(legend.position = "top",
-        legend.title = element_blank(),
+  annotate(geom="text",x=as.Date("2012-10-01"), y=45,label="SF Giants", col = "darkorange", fontface = "bold", size = 3.5) + 
+  annotate(geom="text",x=as.Date("2017-01-01"), y=80,label="LA Dodgers", col = "dodgerblue", fontface = "bold", size = 3.5) + 
+  theme(legend.position = "none",
         panel.grid.major.x = element_blank(),
         panel.grid.minor.x = element_blank(),
-        panel.border = element_rect(colour = "black", fill = NA))
+        panel.border = element_rect(colour = "gray85", fill = NA))
 ```
 
 ```{r}
@@ -119,13 +122,16 @@ fig2b_dat %>%
   ggplot(aes(x = as.Date(date), y = googlehits, group = team)) + 
   geom_line(aes(color = team)) + 
   theme_minimal() +
-  labs(title="Google Trend of Dodgers and Cubs", x = "Date", y = "Google Hits") + 
+  labs(title="Google Trend of LA Dodgers and CHI Cubs", x = "Date", y = "Google Hits") + 
   scale_color_manual(values=c("firebrick2", "dodgerblue")) +
-  theme(legend.position = "top",
-        legend.title = element_blank(),
+  annotate(geom="text",x=as.Date("2015-06-01"), y=50,label="CHI Cubs", col = "firebrick2", fontface = "bold", size = 3.5) + 
+  annotate(geom="text",x=as.Date("2019-01-01"), y=70,label="LA Dodgers", col = "dodgerblue", fontface = "bold", size = 3.5) + 
+  theme(legend.position = "none",
         panel.grid.major.x = element_blank(),
         panel.grid.minor.x = element_blank(),
-        panel.border = element_rect(colour = "black", fill = NA))
+        # panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.border = element_rect(colour = "gray85", fill = NA))
   
 ```
 
@@ -158,9 +164,9 @@ fig3_dat %>%
         panel.grid.major.y = element_blank(),
         panel.grid.minor.x = element_blank(),
         panel.grid.minor.y = element_blank(),
-        panel.border = element_rect(colour = "black", fill = NA),
+        panel.border = element_rect(colour = "gray85", fill = NA),
         panel.background = element_rect(fill = "white"),
-        plot.background = element_rect(fill = "azure3")
+        # plot.background = element_rect(fill = "azure3")
         ) 
 ```
 
@@ -177,9 +183,9 @@ fig3_dat %>%
         panel.grid.major.y = element_blank(),
         panel.grid.minor.x = element_blank(),
         panel.grid.minor.y = element_blank(),
-        panel.border = element_rect(colour = "black", fill = NA),
+        panel.border = element_rect(colour = "gray85", fill = NA),
         panel.background = element_rect(fill = "white"),
-        plot.background = element_rect(fill = "azure3")
+        # plot.background = element_rect(fill = "azure3")
         ) 
 ```
 

@@ -12,6 +12,8 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r libs}
 library(tidyverse)
 library(tidymodels)
+library(lubridate)
+library(modelr)
 ```
 
 ```{r read data}

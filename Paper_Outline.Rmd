@@ -50,7 +50,7 @@ particular team?
 [where did we get it, etc]
 
 ### Google hits
-In order to measure the bandwagon level of MLB fans, we gathered data from google trends to depict the popularity of each team.  This data was gathered using the [**gtrendsR**](https://cran.r-project.org/web/packages/gtrendsR/gtrendsR.pdf) package, which automatically pulls the data from the [Google Trends](https://trends.google.com/trends/?geo=US) API.  The units of the Google Trend data are dependent on the maximum of all the Google searches of interest.  Therefore, we went through each team and determined that the Chicago Cubs had the maximum google trend hits; this lead us to gather data for the rest of the MLB teams relative to the Cubs.  We were also able to collect the Google search hits of the term "MLB" using Google Trends.
+In order to measure the "bandwagon" level of MLB fans, we gathered data from Google Trends to depict the popularity of each team.  This data was gathered using the [**gtrendsR**](https://cran.r-project.org/web/packages/gtrendsR/gtrendsR.pdf) package, which automatically pulls the data from the [Google Trends](https://trends.google.com/trends/?geo=US) API.  The units of the Google Trend data are dependent on the maximum of all the Google searches of interest.  Therefore, we went through each team and determined that the Chicago Cubs had the maximum google trend hits; this lead us to gather data for the rest of the MLB teams relative to the Cubs.  We were also able to collect the Google search hits of the term "MLB" using Google Trends.  Moreover, it is important to note that Google Trends has only been keeping track of Google Searches since the beginning of 2004.
 
 ### Sports Betting Odds
 The preseason odds dataset was gathered using data from [Sports Odds History](https://www.sportsoddshistory.com/mlb-odds/).  We compiled this data by viewing each teams' odds of winning the World Series from 2004 to the present.  Ideally, we would have like to use monthly odds of winning the World Series for each MLB team; however, this data was not available for every desired year.
@@ -62,7 +62,7 @@ We decided that attendence and payroll of each team by season may be valuable ex
 Other exogenous variables we decided would be a valuable predictor in this model was win percentage and whether each team made the playoffs.  We were able to download this data directly from [Sean Lahman's Baseball Database](http://www.seanlahman.com/baseball-archive/statistics/).  This dataset was also filled with other variables such as attendance along with indicators of whether each team won their respective divisions, wild card games, leagues, and the world series.
 
 ### TV Market Size
-The TV Market Size of each team is was also important to create an accurate estimation of the number of true fans of each.  We were able to gather this data using the Nielsen Market Size from [Sports Media Watch](https://www.sportsmediawatch.com/nba-market-size-nfl-mlb-nhl-nielsen-ratings/).
+The TV Market Size of each team was also important to create an accurate estimation of the number of true fans of each.  We were able to gather this data using the Nielsen Market Size from [Sports Media Watch](https://www.sportsmediawatch.com/nba-market-size-nfl-mlb-nhl-nielsen-ratings/).
 
 ### Postseason Performance
 Postseason performance is likely to be one of the most, if not the most, valuable exogenous predictors a teams Google search hits. We manually gathered this data using the respective [Wikipedia](https://en.wikipedia.org/wiki/2019_Major_League_Baseball_season#Postseason) page for each MLB postseason.
@@ -101,10 +101,16 @@ fig1_dat %>%
 but success strongly determines size of spike; e.g. Giants won in X years, 
 Dodgers won in Y years]
 
+Here are two Google Trend lines of the San Francisco Giants and Los Angeles Dodgers from 2004 to July of 2020.  Generally, it is evident that there is seasonality.  There are often more Google search hits at the beginning of the season (April) and during the post-season (October); and expectedly, this number drastically drops during the off-season, which is from November to March.  However, there are several out-of-the-ordinary substantial spikes in the last decade for both teams.  These spikes are most strongly influenced by their playoff success.  It is important to note that the San Francisco Giants won the World Series in 2010, 2012, and 2014 while the Dodgers made the World Series in 2017 and 2018, but failed to win. This clearly aligns with these sizable spikes.
+
 
 ### Google Trends Scaling
 
 [The problem of how gtrends reports relative to max value]
+
+The Google Trends data is very useful; however, it can sometimes be hard to interpret because of the units.  Google normalizes the data by dividing each data point by the total searches of the region and time range represented.  In our case, the region is simply the United States and time varies from 2004 to 2020.  These numbers are then put on scale of 0 to 100 relative to the rest of the correponding search terms.  
+
+To illustrate how this process works, there are two plots below: Figure 2a compares just the Los Angeles Dodgers and the San Francisco Giants while Figure 2b only compares the Los Angeles Dodgers and the Chicago Cubs.  In Figure 2a, it is evident that the Dodgers held the most Google hits in October of 2018 hence the spike reaching 100 Google hits.  Every other point is scaled relative to this maximum.  As we can see in Figure 2b, the scale will change for specific teams depending on the maximum.  In this plot, the Cubs now hold the new maximum of 100 in October 2016 because this was the first time they had won the World Series since 1908.  Therefore, they became the most googled team since 2004 resulting in the Dodgers no longer holding the maximum of 100 in this trend.
 
 Fig 2.
 
@@ -210,11 +216,11 @@ fig3_dat %>%
 ```
 
 
-The skew is too extreme to address with any common data transformations.  However,
-we assert that the raw data values are not meaningful in and of themselves, as
-they correspond to an arbitrary scale set by the most publicized month of baseball
-during the time window of the data collection.  Therefore, we opted for a data 
-transformation that retains the rank-ordering of the observations, but not the 
+As seen in Figure 3a and 3b, the skew is too extreme to address with any common data 
+transformations.  However, we assert that the raw data values are not meaningful in 
+and of themselves, as they correspond to an arbitrary scale set by the most publicized 
+month of baseball during the time window of the data collection.  Therefore, we opted 
+for a data transformation that retains the rank-ordering of the observations, but not the 
 scaling.  Google Hits values were quantile normalized (reference) before model building.
 
 ### Season phases
@@ -272,15 +278,18 @@ fig4_dat %>%
   annotate(geom = "text", x=11.5, y=6.5, label = "Off-Season") +
   labs(title = "Monthly Average of Google Trend Hits for SF Giants (2004-2020)") + 
   scale_x_discrete(labels = month.abb[c(1:12)]) + 
-  theme(plot.title = element_text(face = "bold"),
+  scale_y_discrete(expand = c(0,0), limits = factor(0:9)) +
+  theme(
+      # plot.title = element_text(face = "bold"),
         axis.title.x = element_blank(),
         axis.title.y = element_blank(),
         panel.grid.major.x = element_blank(),
-        panel.grid.major.y = element_line(colour = "gray85"),
-        panel.grid.minor.y = element_line(colour = "gray85"),
-        panel.border = element_rect(colour = "gray85", fill = NA),
-        panel.background = element_rect(fill = "white"),
-        plot.background = element_rect(fill = "darkorange")) 
+        panel.grid.major.y = element_line(colour = "gray90"),
+        panel.grid.minor.y = element_blank(),
+        panel.border = element_rect(colour = "gray75", fill = NA),
+        panel.background = element_rect(fill = "white")
+        # plot.background = element_rect(fill = "darkorange")
+  )
 
 ```
 
@@ -319,15 +328,18 @@ fig4_dat %>%
   annotate(geom = "text", x=11.5, y=1.75, label = "Off-Season") +
   labs(title = "Monthly Average of Google Trend Hits for SEA Mariners (2004-2020)") + 
   scale_x_discrete(labels = month.abb[c(1:12)]) + 
-  theme(plot.title = element_text(face = "bold"),
+  scale_y_continuous(expand = c(0,0), limits = c(0, 3.5)) +
+  theme(
+        # plot.title = element_text(face = "bold"),
         axis.title.x = element_blank(),
         axis.title.y = element_blank(),
         panel.grid.major.x = element_blank(),
-        panel.grid.major.y = element_line(colour = "gray85"),
-        panel.grid.minor.y = element_line(colour = "gray85"),
-        panel.border = element_rect(colour = "gray85", fill = NA),
-        panel.background = element_rect(fill = "white"),
-        plot.background = element_rect(fill = "cyan4")) 
+        panel.grid.major.y = element_line(colour = "gray90"),
+        panel.grid.minor.y = element_line(colour = "gray90"),
+        panel.border = element_rect(colour = "gray80", fill = NA),
+        panel.background = element_rect(fill = "white")
+        # plot.background = element_rect(fill = "cyan4")
+        ) 
 
 ```
 
@@ -366,15 +378,17 @@ fig4_dat %>%
   annotate(geom = "text", x=11.5, y=2.5, label = "Off-Season") +
   labs(title = "Monthly Average of Google Trend Hits for MLB Teams (2004-2020)") + 
   scale_x_discrete(labels = month.abb[c(1:12)]) + 
+  scale_y_continuous(expand = c(0,0), limits = c(0, 5)) +
   theme(plot.title = element_text(face = "bold"),
         axis.title.x = element_blank(),
         axis.title.y = element_blank(),
         panel.grid.major.x = element_blank(),
         panel.grid.major.y = element_line(colour = "gray85"),
-        panel.grid.minor.y = element_line(colour = "gray85"),
+        panel.grid.minor.y = element_blank(),
         panel.border = element_rect(colour = "gray85", fill = NA),
-        panel.background = element_rect(fill = "white"),
-        plot.background = element_rect(fill = "azure3")) 
+        panel.background = element_rect(fill = "white")
+        # plot.background = element_rect(fill = "azure3")
+        ) 
 
 ```
 

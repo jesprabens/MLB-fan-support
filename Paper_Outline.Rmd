@@ -92,9 +92,11 @@ fig1_dat %>%
   theme(legend.position = "none",
         panel.grid.major.x = element_blank(),
         panel.grid.minor.x = element_blank(),
+        panel.grid.major.y = element_line(colour = "gray92"),
+        panel.grid.minor.y = element_line(colour = "gray92"),
         axis.title.x = element_blank(),
         axis.title.y = element_text(angle = 0, vjust = 0.5),
-        panel.border = element_rect(colour = "gray85", fill = NA))
+        panel.border = element_rect(colour = "gray80", fill = NA))
 ```
 
 [Brief discussion: note how there are consistent phases of the season, 
@@ -135,9 +137,11 @@ fig2a_dat %>%
   theme(legend.position = "none",
         panel.grid.major.x = element_blank(),
         panel.grid.minor.x = element_blank(),
+        panel.grid.major.y = element_line(colour = "gray92"),
+        panel.grid.minor.y = element_line(colour = "gray92"),
         axis.title.x = element_blank(),
         axis.title.y = element_text(angle = 0, vjust = 0.5),
-        panel.border = element_rect(colour = "gray85", fill = NA))
+        panel.border = element_rect(colour = "gray80", fill = NA))
 ```
 
 ```{r}
@@ -161,9 +165,11 @@ fig2b_dat %>%
   theme(legend.position = "none",
         panel.grid.major.x = element_blank(),
         panel.grid.minor.x = element_blank(),
+        panel.grid.major.y = element_line(colour = "gray92"),
+        panel.grid.minor.y = element_line(colour = "gray92"),
         axis.title.y = element_text(angle = 0, vjust = 0.5),
         axis.title.x = element_blank(),
-        panel.border = element_rect(colour = "gray85", fill = NA))
+        panel.border = element_rect(colour = "gray80", fill = NA))
   
 ```
 
@@ -194,7 +200,7 @@ fig3_dat %>%
   theme(axis.title.y=element_blank(),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
-        panel.border = element_rect(colour = "gray85", fill = NA),
+        panel.border = element_rect(colour = "gray80", fill = NA),
         panel.background = element_rect(fill = "white")
         ) 
 ```
@@ -216,7 +222,7 @@ fig3_dat %>%
 ```
 
 
-As seen in Figure 3a and 3b, the skew is too extreme to address with any common data 
+As seen in Figures 3a and 3b, the skew is too extreme to address with any common data 
 transformations.  However, we assert that the raw data values are not meaningful in 
 and of themselves, as they correspond to an arbitrary scale set by the most publicized 
 month of baseball during the time window of the data collection.  Therefore, we opted 
@@ -251,16 +257,16 @@ fig4_dat %>%
   ggplot(aes(x = date, y = qn_ghits)) +
   geom_line(col = "darkorange") +
   labs(title = "Quantile-Normalized Google Trend Hits for SF Giants (Past 5 Years)") + 
-  theme(plot.title = element_text(face = "bold", size = 13),
+  theme(
         axis.title.x = element_blank(),
         axis.title.y = element_blank(),
         panel.grid.major.x = element_blank(),
         panel.grid.minor.x = element_blank(),
-        panel.grid.major.y = element_line(colour = "gray85"),
-        panel.grid.minor.y = element_line(colour = "gray85"),
-        panel.border = element_rect(colour = "gray85", fill = NA),
-        panel.background = element_rect(fill = "white"),
-        plot.background = element_rect(fill = "darkorange"))  
+        panel.grid.major.y = element_line(colour = "gray92"),
+        panel.grid.minor.y = element_line(colour = "gray92"),
+        panel.border = element_rect(colour = "gray80", fill = NA),
+        panel.background = element_rect(fill = "white")
+  )
 
 # giants - monthly average hits over ALL years with phases
 fig4_dat %>%
@@ -276,19 +282,17 @@ fig4_dat %>%
   annotate(geom = "text", x=7, y=6.5, label = "Season") +
   annotate(geom = "text", x=10, y=6.5, label = "Post-Season\n", angle = 90) +
   annotate(geom = "text", x=11.5, y=6.5, label = "Off-Season") +
-  labs(title = "Monthly Average of Google Trend Hits for SF Giants (2004-2020)") + 
+  labs(title = "Monthly Average Google Trend Hits for SF Giants (2004-2020)") + 
   scale_x_discrete(labels = month.abb[c(1:12)]) + 
-  scale_y_discrete(expand = c(0,0), limits = factor(0:9)) +
+  scale_y_continuous(expand = c(0,0), limits = c(0,10)) + 
   theme(
-      # plot.title = element_text(face = "bold"),
         axis.title.x = element_blank(),
         axis.title.y = element_blank(),
         panel.grid.major.x = element_blank(),
-        panel.grid.major.y = element_line(colour = "gray90"),
+        panel.grid.major.y = element_line(colour = "gray92"),
         panel.grid.minor.y = element_blank(),
-        panel.border = element_rect(colour = "gray75", fill = NA),
+        panel.border = element_rect(colour = "gray80", fill = NA),
         panel.background = element_rect(fill = "white")
-        # plot.background = element_rect(fill = "darkorange")
   )
 
 ```
@@ -301,16 +305,16 @@ fig4_dat %>%
   ggplot(aes(x = date, y = qn_ghits)) +
   geom_line(col = "cyan4") +
   labs(title = "Quantile-Normalized Google Trend Hits for SEA Mariners (Past 5 Years)") + 
-  theme(plot.title = element_text(face = "bold", size = 13),
+  theme(
         axis.title.x = element_blank(),
         axis.title.y = element_blank(),
         panel.grid.major.x = element_blank(),
         panel.grid.minor.x = element_blank(),
-        panel.grid.major.y = element_line(colour = "gray85"),
-        panel.grid.minor.y = element_line(colour = "gray85"),
-        panel.border = element_rect(colour = "gray85", fill = NA),
-        panel.background = element_rect(fill = "white"),
-        plot.background = element_rect(fill = "cyan4"))  
+        panel.grid.major.y = element_line(colour = "gray92"),
+        panel.grid.minor.y = element_line(colour = "gray92"),
+        panel.border = element_rect(colour = "gray80", fill = NA),
+        panel.background = element_rect(fill = "white")
+        )  
 
 # Mariners - monthly average hits over ALL years with phases
 fig4_dat %>%
@@ -326,19 +330,17 @@ fig4_dat %>%
   annotate(geom = "text", x=7, y=1.75, label = "Season") +
   annotate(geom = "text", x=10, y=1.75, label = "Post-Season\n", angle = 90) +
   annotate(geom = "text", x=11.5, y=1.75, label = "Off-Season") +
-  labs(title = "Monthly Average of Google Trend Hits for SEA Mariners (2004-2020)") + 
+  labs(title = "Monthly Average Google Trend Hits for SEA Mariners (2004-2020)") + 
   scale_x_discrete(labels = month.abb[c(1:12)]) + 
-  scale_y_continuous(expand = c(0,0), limits = c(0, 3.5)) +
+  scale_y_continuous(expand = c(0,0), limits = c(0,4)) +
   theme(
-        # plot.title = element_text(face = "bold"),
         axis.title.x = element_blank(),
         axis.title.y = element_blank(),
         panel.grid.major.x = element_blank(),
-        panel.grid.major.y = element_line(colour = "gray90"),
-        panel.grid.minor.y = element_line(colour = "gray90"),
+        panel.grid.major.y = element_line(colour = "gray92"),
+        panel.grid.minor.y = element_blank(),
         panel.border = element_rect(colour = "gray80", fill = NA),
         panel.background = element_rect(fill = "white")
-        # plot.background = element_rect(fill = "cyan4")
         ) 
 
 ```
@@ -352,16 +354,16 @@ fig4_dat %>%
   ggplot(aes(x = date, y = avg_qn_ghits)) +
   geom_line(col = "azure4") +
   labs(title = "Average Quantile-Normalized Google Trend Hits for MLB Teams (Past 5 Years)") + 
-  theme(plot.title = element_text(face = "bold", size = 13),
+  theme(
         axis.title.x = element_blank(),
         axis.title.y = element_blank(),
         panel.grid.major.x = element_blank(),
         panel.grid.minor.x = element_blank(),
-        panel.grid.major.y = element_line(colour = "gray85"),
-        panel.grid.minor.y = element_line(colour = "gray85"),
-        panel.border = element_rect(colour = "gray85", fill = NA),
-        panel.background = element_rect(fill = "white"),
-        plot.background = element_rect(fill = "azure3")) 
+        panel.grid.major.y = element_line(colour = "gray92"),
+        panel.grid.minor.y = element_line(colour = "gray92"),
+        panel.border = element_rect(colour = "gray80", fill = NA),
+        panel.background = element_rect(fill = "white")
+        ) 
 
 # ALL TEAMS - monthly average hits over ALL years with phases
 fig4_dat %>%
@@ -376,24 +378,27 @@ fig4_dat %>%
   annotate(geom = "text", x=7, y=2.5, label = "Season") +
   annotate(geom = "text", x=10, y=2.5, label = "Post-Season\n", angle = 90) +
   annotate(geom = "text", x=11.5, y=2.5, label = "Off-Season") +
-  labs(title = "Monthly Average of Google Trend Hits for MLB Teams (2004-2020)") + 
+  labs(title = "Monthly Average Google Trend Hits for MLB Teams (2004-2020)") + 
   scale_x_discrete(labels = month.abb[c(1:12)]) + 
-  scale_y_continuous(expand = c(0,0), limits = c(0, 5)) +
-  theme(plot.title = element_text(face = "bold"),
+  scale_y_continuous(expand = c(0,0), limits = c(0, 5.5)) +
+  theme(
         axis.title.x = element_blank(),
         axis.title.y = element_blank(),
         panel.grid.major.x = element_blank(),
-        panel.grid.major.y = element_line(colour = "gray85"),
+        panel.grid.major.y = element_line(colour = "gray92"),
         panel.grid.minor.y = element_blank(),
-        panel.border = element_rect(colour = "gray85", fill = NA),
+        panel.border = element_rect(colour = "gray80", fill = NA),
         panel.background = element_rect(fill = "white")
-        # plot.background = element_rect(fill = "azure3")
         ) 
 
 ```
 
+MLB teams that have done well since 2004, like the San Francisco Giants, will typically have higher quantile-normalized Google trend hits over the past 5 years than the average MLB team.  Moreover, the Giants had a higher monthly average Google hits than the average team; they even had higher spikes during the post-season because they were very successful during this time.  On the other hand, an MLB team who is less successful, such as the Seattle Mariners, will have lower quantile-normalized Google trends over the past 5 years and a lower monthly average Google hits than the average team.  The Mariners monthly average Google hits also severely drops during the post-season; a large contribution to this is that they have never made the World Series. 
+
+
 ## Model-Building
 
+As mentioned, the data was quantile-normaized before construction of the model began.  
 
 ## Measuring hype and bandwagoning
 

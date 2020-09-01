@@ -212,7 +212,7 @@ $$E_{1ij} \sim \gamma_{ij} ... + E_2$$
 ## Team-specific
 
 ```{r}
-lm(resid_final ~ team:phase, data = dat)
+test <- lm(resid_final ~ team:phase, data = dat)
 ```
 
 

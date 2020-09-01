@@ -398,9 +398,40 @@ MLB teams that have done well since 2004, like the San Francisco Giants, will ty
 
 ## Model-Building
 
+<<<<<<< HEAD
 As mentioned, the data was quantile-normaized before construction of the model began.  
+=======
+(motivation for hierarchical model)
+>>>>>>> 275f7a8f42a6ea1d64084bd2079cd9b02c1541f2
 
-## Measuring hype and bandwagoning
+(for sections below, provide discussion of model in words, and summary of model results)
+
+### Level 1: Overall predicted mean
+
+
+$$\{\text{Mean google hits overall} \} \sim \{\text{Mean google hits for all teams} \} + \alpha \, \text{\{TV Market Size\}} + \epsilon_{i}$$
+
+### Level 2: Annual predicted mean
+
+$$\{\text{Mean google hits this year} \} \sim 
+\{\text{Mean google hits overall} \} + 
+\gamma_0 \{\text{MLB google hits this year}\} + 
+\gamma_{1} \{\text{Mean google hits last year}\} +
+\gamma_{2} \{\text{Playoffs last year}\} +
+\gamma_{3} \{\text{Win percent last year}\} +
+\gamma_{4} \{\text{Preseason odds}\} +
+\gamma_{5} \{\text{Preseason payroll}\} +
+\epsilon_{ij}
+\; $$
+
+### Level 3: Predicted Google hits by month
+
+
+## Results
+
+(A few plots and discussion of how well the model fits)
+
+## Measuring bandwagoning
 
 
 ## Conclusions

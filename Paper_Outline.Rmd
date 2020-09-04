@@ -216,7 +216,7 @@ fig3_dat %>%
   theme(axis.title.y=element_blank(),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
-        panel.border = element_rect(colour = "gray85", fill = NA),
+        panel.border = element_rect(colour = "gray80", fill = NA),
         panel.background = element_rect(fill = "white")
         ) 
 ```
@@ -399,7 +399,8 @@ MLB teams that have done well since 2004, like the San Francisco Giants, will ty
 ## Model-Building
 
 <<<<<<< HEAD
-As mentioned, the data was quantile-normaized before construction of the model began.  
+As mentioned, the data was quantile-normaized before construction of the model began.  We then proceeded by building a hierarchical model.  A hierarchicacal model consists of Considering the structure of our data, it made the most logical sense to split this hierarchical model into 3 levels.
+
 =======
 (motivation for hierarchical model)
 >>>>>>> 275f7a8f42a6ea1d64084bd2079cd9b02c1541f2
@@ -408,6 +409,7 @@ As mentioned, the data was quantile-normaized before construction of the model b
 
 ### Level 1: Overall predicted mean
 
+The highest level of the model consists of variable
 
 $$\{\text{Mean google hits overall} \} \sim \{\text{Mean google hits for all teams} \} + \alpha \, \text{\{TV Market Size\}} + \epsilon_{i}$$
 

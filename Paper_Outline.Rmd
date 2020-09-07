@@ -20,7 +20,7 @@ becoming popular. The bandwagon effect is very common when describing fans in
 professional sports, including Major League Baseball. (Talk about Past Bandwagon 
 Studies?) In this work, we model the Google search hits for MLB teams across a 
 season as a function of team success.  Using a hierarchical time series model, we 
-are able to explorewhich MLB teams attract the most “bandwagon” fans and when MLB 
+are able to explore which MLB teams attract the most “bandwagon” fans and when MLB 
 teams are overhypedor underhyped. We defined a “hype” moment as an unusual spike 
 in Google searches at a specific time for a team.  The creation of this model 
 required gathering the Google search hits data from Google Trends for each MLB 
@@ -448,7 +448,7 @@ As mentioned, the data was quantile-normalized before construction of the model 
 The highest level of this model focuses solely on aspects of the MLB teams that don't involve time.  This means that the overall average google hits for each team is not dependent on any annual or monthly variables. Therefore, the only variable that was included in this part of the model was the TV Market Size for each MLB team.
 
 $$\{\text{Mean google hits overall} \} \sim \{\text{Mean google hits for all teams} \} + \alpha \, \text{\{TV Market Size\}} + \epsilon_{i}$$
-```{r}
+```{r overall model}
 # DO WE WANT SUMMARY OUTPUT AND CODE HERE?
 fit_overall <- lm(ghits_overall ~ propTVMarketSize,
                       data = dat_overall)
@@ -481,7 +481,7 @@ $$\{\text{Mean google hits this year} \} \sim
 \epsilon_{ij}
 \; $$
 
-```{r}
+```{r annual model}
 # DO WE WANT SUMMARY OUTPUT AND CODE HERE?
 fit_annual <- lm(resid_annual ~ mlb_annual + 
                    lag(ghits_annual) + 
@@ -513,9 +513,11 @@ The average annual Google hits for the term, "MLB", the average Google hits from
 
 ### Level 3: Predicted Google hits by month
 
-The bottom level of the hierarchical model will be affecting the monthly Google hits for each team.  The response variable will now be the residuals from the actual count of Google hits per month and the predicted Google hits from the annual level of the model.  The exogenous variables that will be inputted in this part of the model are variables that are affected by the monthly change.  In our case, we used a variable indicating the time of the year, 
+The bottom level of the hierarchical model will be affecting the monthly Google hits for each team.  The response variable will now be the residuals from the actual count of Google hits per month and the predicted Google hits from the annual level of the model.  The exogenous variables that will be inputted in this part of the model are variables that are affected by the monthly change.  In our case, we used Google hits for the term "MLB," the quantile-normalized Google hits for each team from the previous year, a variable to indicate the phase of the season, winning percentage, attendance, and how well each team did in the post-season.
 
-```{r}
+(I haven't wrote the model in LateX yet. It should go here.)
+
+```{r monthly model}
 fit_monthly <- lm(resid ~ mlb_searches + lag(googlehits) + 
                         phase*(winpct + attendance) + is_playoffs:playoffs,
                       data = dat) 
@@ -533,31 +535,90 @@ dat <- dat %>%
   )
 ```
 
+From our model, we can see that Google hits for the term "MLB," the quantile-normalized Google hits for each team from the previous year, the phases opening and Post-Season, winning percentage, the phase season interacted with winning percentage, the phase playoffs interacted with attendance, an indicator variable for the playoffs interacted with not making playoffs, an indicator variable for the playoffs interacted with losing in the Wild Card game, an indicator variable for the playoffs interacted with losing in the Division Series, and an indicator variable for the playoffs interacted with losing in the Championship Series. (still need to do interpretations of significant variables, kinda iffy on interpretting interactions and lags right now).
 
 
 ## Results
 
 (A few plots and discussion of how well the model fits)
 
-```{r final resids}
+```{r final resids, echo = FALSE}
 dat %>%
   filter(team %in% c("San Francisco Giants", "Los Angeles Dodgers", "Chicago Cubs")) %>%
-  ggplot(aes(x = date, y = resid_final, color = team)) +
-  geom_line()
+  ggplot(aes(x = as.Date(date), y = resid_final, color = team)) +
+  scale_color_manual(values=c("darkorange", "dodgerblue", "firebrick2")) +
+  geom_line() + 
+  theme_minimal()+
+  annotate(geom="text",x=as.Date("2015-03-01"), y=1.25,label="SF Giants", col = "darkorange", fontface = "bold", size = 3.5) + 
+  annotate(geom="text",x=as.Date("2019-06-01"), y=1.1,label="LA Dodgers", col = "dodgerblue", fontface = "bold", size = 3.5) +
+  annotate(geom="text",x=as.Date("2008-01-01"), y=1.25,label="CHI Cubs", col = "firebrick2", fontface = "bold", size = 3.5) +
+  labs(title = "Residuals for CHI Cubs, SF Giants, & LA Dodgers", y = "Residuals") + 
+  theme(legend.position = "none",
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.major.y = element_line(colour = "gray92"),
+        panel.grid.minor.y = element_line(colour = "gray92"),
+        axis.title.x = element_blank(),
+        axis.title.y = element_text(angle = 0, vjust = 0.5),
+        panel.border = element_rect(colour = "gray80", fill = NA))
 
 
 dat %>%
   filter(team %in% c("San Francisco Giants")) %>%
   ggplot() +
-  geom_line(aes(x = date, y = googlehits), color = "black") +
-  geom_line(aes(x = date, y = pred), color = "red")
+  geom_line(aes(x = as.Date(date), y = googlehits), color = "darkorange") +
+  geom_line(aes(x = as.Date(date), y = pred), color = "black") + 
+  theme_minimal() + 
+  annotate(geom="text",x=as.Date("2019-03-01"), y=2,label="Actual Google Hits", col = "darkorange", fontface = "bold", size = 3.5) + 
+  annotate(geom="text",x=as.Date("2008-03-01"), y=1.6,label="Predicted Google Hits", col = "black", fontface = "bold", size = 3.5) +
+  labs(title = "Predicted vs. Actual Quantile-Normalized Google Hits for SF Giants") + 
+    theme(legend.position = "none",
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.major.y = element_line(colour = "gray92"),
+        panel.grid.minor.y = element_line(colour = "gray92"),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        panel.border = element_rect(colour = "gray80", fill = NA))
+
+dat %>%
+  filter(team %in% c("Los Angeles Dodgers")) %>%
+  ggplot() +
+  geom_line(aes(x = as.Date(date), y = googlehits), color = "dodgerblue") +
+  geom_line(aes(x = as.Date(date), y = pred), color = "black") + 
+  theme_minimal() + 
+  annotate(geom="text",x=as.Date("2014-09-01"), y=2.5,label="Actual Google Hits", col = "dodgerblue", fontface = "bold", size = 3.5) + 
+  annotate(geom="text",x=as.Date("2008-03-01"), y=2,label="Predicted Google Hits", col = "black", fontface = "bold", size = 3.5) +
+  labs(title = "Predicted vs. Actual Quantile-Normalized Google Hits for LA Dodgers") + 
+    theme(legend.position = "none",
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.major.y = element_line(colour = "gray92"),
+        panel.grid.minor.y = element_line(colour = "gray92"),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        panel.border = element_rect(colour = "gray80", fill = NA))
 
 dat %>%
   filter(team %in% c("Chicago Cubs")) %>%
   ggplot() +
-  geom_line(aes(x = date, y = googlehits), color = "black") +
-  geom_line(aes(x = date, y = pred), color = "red")
+  geom_line(aes(x = as.Date(date), y = googlehits), color = "firebrick2") +
+  geom_line(aes(x = as.Date(date), y = pred), color = "black") + 
+  theme_minimal() + 
+  annotate(geom="text",x=as.Date("2013-09-01"), y=2.5,label="Actual Google Hits", col = "firebrick2", fontface = "bold", size = 3.5) + 
+  annotate(geom="text",x=as.Date("2008-03-01"), y=2,label="Predicted Google Hits", col = "black", fontface = "bold", size = 3.5) +
+  labs(title = "Predicted vs. Actual Quantile-Normalized Google Hits for CHI Cubs") + 
+    theme(legend.position = "none",
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.major.y = element_line(colour = "gray92"),
+        panel.grid.minor.y = element_line(colour = "gray92"),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        panel.border = element_rect(colour = "gray80", fill = NA))
 ```
+
+(Discussion)
 
 ## Measuring bandwagoning
 

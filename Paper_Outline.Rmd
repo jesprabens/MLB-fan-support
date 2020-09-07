@@ -398,8 +398,44 @@ MLB teams that have done well since 2004, like the San Francisco Giants, will ty
 
 ## Model-Building
 
+
+```{r, include = FALSE}
+dat <- read.csv("Model_Data.csv")
+
+dat_overall <- dat %>%
+  group_by(team) %>%
+  summarize(
+    ghits_overall = mean(googlehits),
+    propTVMarketSize = propTVMarketSize[1]
+  ) %>%
+  ungroup()
+
+dat_annual <- dat %>%
+  group_by(team, year) %>%
+  summarize(
+    ghits_annual = mean(googlehits),
+    mlb_annual = mean(mlb_searches),
+    propTVMarketSize = propTVMarketSize[1],
+    playoffs = playoffs[1],
+    odds = odds[1],
+    winpct = winpct[1],
+    attendance = attendance[1],
+    payroll = payroll[1]
+  ) %>%
+  ungroup()
+
+dat_annual <- dat_overall %>%
+  select(team, ghits_overall) %>%
+  right_join(dat_annual)
+
+
+dat <- dat_annual %>%
+  select(team, year, ghits_annual, mlb_annual, ghits_overall) %>%
+  right_join(dat)
+```
+
 <<<<<<< HEAD
-As mentioned, the data was quantile-normaized before construction of the model began.  We then proceeded by building a hierarchical model.  A hierarchicacal model consists of Considering the structure of our data, it made the most logical sense to split this hierarchical model into 3 levels.
+As mentioned, the data was quantile-normalized before construction of the model began.  We then proceeded by building a hierarchical model.  A hierarchicacal model is a model that consists of multiple levels where each level affects the levels below them.  Considering the structure of our timely data, it made the most logical sense to split this hierarchical model into 3 levels: overall, annual, and monthly. We will go into detail about each level of the model below.
 
 =======
 (motivation for hierarchical model)
@@ -409,11 +445,30 @@ As mentioned, the data was quantile-normaized before construction of the model b
 
 ### Level 1: Overall predicted mean
 
-The highest level of the model consists of variable
+The highest level of this model focuses solely on aspects of the MLB teams that don't involve time.  This means that the overall average google hits for each team is not dependent on any annual or monthly variables. Therefore, the only variable that was included in this part of the model was the TV Market Size for each MLB team.
 
 $$\{\text{Mean google hits overall} \} \sim \{\text{Mean google hits for all teams} \} + \alpha \, \text{\{TV Market Size\}} + \epsilon_{i}$$
+```{r}
+# DO WE WANT SUMMARY OUTPUT AND CODE HERE?
+fit_overall <- lm(ghits_overall ~ propTVMarketSize,
+                      data = dat_overall)
+
+summary(fit_overall)
+
+dat_annual <- dat_annual %>%
+  add_predictions(
+    fit_overall,
+    var = "pred_overall"
+  ) %>%
+  mutate(
+    resid_annual = ghits_annual - pred_overall
+  )
+```
+The summary of this model gave us a p-value of 0.000347  for TV Market Size, which indicates that it does affect the overall mean Google hits.  In fact, it estimates that for every increase in 1 person in TV Market Size, the quantile-normalized overall mean Google hits will increase by 4.346e-07 for each MLB team.
 
 ### Level 2: Annual predicted mean
+
+The next level in the model consists of all the variables that affect the mean Google hits per each year for each MLB team. The response variable for this level is now the errors between quantile-normalized Google hits for each year per team and the overall predicted Google hits for each team.  The variables that could affect this include the average quantile-normalized Google hits for the term "MLB", the average Google hits from the previous year for each team, how well the team did in the post-season last year, the win percentage of the team from last year, the total attendance from last season, the pre-season odds of winning the World Series, and the payroll for the team at the beginning of the season.
 
 $$\{\text{Mean google hits this year} \} \sim 
 \{\text{Mean google hits overall} \} + 
@@ -426,12 +481,83 @@ $$\{\text{Mean google hits this year} \} \sim
 \epsilon_{ij}
 \; $$
 
+```{r}
+# DO WE WANT SUMMARY OUTPUT AND CODE HERE?
+fit_annual <- lm(resid_annual ~ mlb_annual + 
+                   lag(ghits_annual) + 
+                   lag(playoffs) + lag(winpct) + lag(attendance) +
+                   odds + payroll,
+                      data = dat_annual) 
+
+summary(fit_annual)
+
+dat <- dat %>%
+  add_predictions(
+    fit_overall,
+    var = "pred_overall"
+  ) %>%
+  add_predictions(
+    fit_annual,
+    var = "pred_resid_annual"
+  ) %>%
+  mutate(
+    pred_annual = pred_overall + pred_resid_annual,
+    resid = googlehits - pred_annual
+  )
+```
+
+The average annual Google hits for the term, "MLB", the average Google hits from last year for each team, being eliminated from the post-season in the Division Series, the total attendance from the previous year, and the pre-season odds for winning the World Series are all significant predictors (p-value < 0.05) of the annual residuals in this model. For every increase in 1 quantile-normalized Google search hit of the term, "MLB", the annual residuals are estimated to increase by 1.809e-01.  For every increase in 1 quantile-normalized Google search hits of a specific team from the previous year, the annual residuals increase by 7.810e-01.  (lag on Lost Quarter need to fix interpretation / more than a team that did not make the playoffs).  For every increase in 1 person in attendance from the previous year, the annual residuals are estimated to decrease by 1.680e-07.  For every increase in 1 unit of odds, the annual residuals are estimated to decrease by 5.822e-06.
+
+(having a little hard time interpretting)
+
+
 ### Level 3: Predicted Google hits by month
+
+The bottom level of the hierarchical model will be affecting the monthly Google hits for each team.  The response variable will now be the residuals from the actual count of Google hits per month and the predicted Google hits from the annual level of the model.  The exogenous variables that will be inputted in this part of the model are variables that are affected by the monthly change.  In our case, we used a variable indicating the time of the year, 
+
+```{r}
+fit_monthly <- lm(resid ~ mlb_searches + lag(googlehits) + 
+                        phase*(winpct + attendance) + is_playoffs:playoffs,
+                      data = dat) 
+
+summary(fit_monthly)
+
+dat <- dat %>%
+  add_predictions(
+    fit_monthly,
+    var = "pred_resid"
+  ) %>%
+  mutate(
+    pred = pred_overall + pred_resid_annual + pred_resid,
+    resid_final = googlehits - pred
+  )
+```
+
 
 
 ## Results
 
 (A few plots and discussion of how well the model fits)
+
+```{r final resids}
+dat %>%
+  filter(team %in% c("San Francisco Giants", "Los Angeles Dodgers", "Chicago Cubs")) %>%
+  ggplot(aes(x = date, y = resid_final, color = team)) +
+  geom_line()
+
+
+dat %>%
+  filter(team %in% c("San Francisco Giants")) %>%
+  ggplot() +
+  geom_line(aes(x = date, y = googlehits), color = "black") +
+  geom_line(aes(x = date, y = pred), color = "red")
+
+dat %>%
+  filter(team %in% c("Chicago Cubs")) %>%
+  ggplot() +
+  geom_line(aes(x = date, y = googlehits), color = "black") +
+  geom_line(aes(x = date, y = pred), color = "red")
+```
 
 ## Measuring bandwagoning
 

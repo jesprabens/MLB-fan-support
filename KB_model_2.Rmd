@@ -51,6 +51,8 @@ dat <- dat_orig %>%
                       levels = c("No Playoffs", "Lost WC", "Lost Quarter", "Lost Semi", "Lost WS", "Won WS"))
   ) 
 
+dat %>%
+  write.csv("Model_Data.csv")
 # 
 # dat_split <- initial_split(dat)
 # 
@@ -128,6 +130,8 @@ dat <- dat_annual %>%
 fit_overall <- lm(ghits_overall ~ propTVMarketSize,
                       data = dat_overall)
 
+summary(fit_overall)
+
 dat_annual <- dat_annual %>%
   add_predictions(
     fit_overall,
@@ -136,6 +140,8 @@ dat_annual <- dat_annual %>%
   mutate(
     resid_annual = ghits_annual - pred_overall
   )
+
+
 ```
 
 
@@ -145,6 +151,8 @@ fit_annual <- lm(resid_annual ~ mlb_annual +
                    lag(playoffs) + lag(winpct) + lag(attendance) +
                    odds + payroll,
                       data = dat_annual) 
+
+summary(fit_annual)
 
 dat <- dat %>%
   add_predictions(
@@ -167,6 +175,7 @@ fit_monthly <- lm(resid ~ mlb_searches + lag(googlehits) +
                         phase*(winpct + attendance) + is_playoffs:playoffs,
                       data = dat) 
 
+summary(fit_monthly)
 
 dat <- dat %>%
   add_predictions(

@@ -435,7 +435,7 @@ dat <- dat_annual %>%
 ```
 
 <<<<<<< HEAD
-As mentioned, the data was quantile-normalized before construction of the model began.  We then proceeded by building a hierarchical model.  A hierarchicacal model is a model that consists of multiple levels where each level affects the levels below them.  Considering the structure of our timely data, it made the most logical sense to split this hierarchical model into 3 levels: overall, annual, and monthly. We will go into detail about each level of the model below.
+As mentioned, the data was quantile-normalized before construction of the model began.  For the rest of the this paper, when we mention Google hits, we will be referring to the quantile-normalized Google hits. We proceeded by building a hierarchical model.  A hierarchicacal model consists of multiple levels where each level affects the levels below them.  (BETTER DEFINITION OF HIERARCHICAL MODEL) Considering the structure of our timely data, it made the most logical sense to split this hierarchical model into 3 levels: overall, annual, and monthly. We will go into detail about each level of the model below.
 
 =======
 (motivation for hierarchical model)
@@ -445,7 +445,7 @@ As mentioned, the data was quantile-normalized before construction of the model 
 
 ### Level 1: Overall predicted mean
 
-The highest level of this model focuses solely on aspects of the MLB teams that don't involve time.  This means that the overall average google hits for each team is not dependent on any annual or monthly variables. Therefore, the only variable that was included in this part of the model was the TV Market Size for each MLB team.
+The highest level of this model focuses on aspects of the MLB teams from our entire time interval of interest, 2004 to 2020. The goal in this level is to predict the average overall Google hits.  Because no annual or monthly variables would be approriate for this level, the only explanatory variable that was included in this part of the model was the TV Market Size for each MLB team.
 
 $$\{\text{Mean google hits overall} \} \sim \{\text{Mean google hits for all teams} \} + \alpha \, \text{\{TV Market Size\}} + \epsilon_{i}$$
 ```{r overall model}
@@ -464,11 +464,11 @@ dat_annual <- dat_annual %>%
     resid_annual = ghits_annual - pred_overall
   )
 ```
-The summary of this model gave us a p-value of 0.000347  for TV Market Size, which indicates that it does affect the overall mean Google hits.  In fact, it estimates that for every increase in 1 person in TV Market Size, the quantile-normalized overall mean Google hits will increase by 4.346e-07 for each MLB team.
+The summary of this model gave us a p-value of 0.000347  for TV Market Size, which indicates that it does affect the overall mean Google hits for MLB teams.  In fact, it estimates that for every increase in 100,000 people in TV Market Size, the overall mean Google hits will increase by 0.04346 for each MLB team.  This will affect teams with bigger TV Market Sizes differently than less popular teams with smaller TV Market Sizes.  For example, 
 
 ### Level 2: Annual predicted mean
 
-The next level in the model consists of all the variables that affect the mean Google hits per each year for each MLB team. The response variable for this level is now the errors between quantile-normalized Google hits for each year per team and the overall predicted Google hits for each team.  The variables that could affect this include the average quantile-normalized Google hits for the term "MLB", the average Google hits from the previous year for each team, how well the team did in the post-season last year, the win percentage of the team from last year, the total attendance from last season, the pre-season odds of winning the World Series, and the payroll for the team at the beginning of the season.
+The next level in this model focuses on predicting the annual average Google hits for each MLB team. In the first level of this model, we predicted what the overall Google hits for each MLB team would be; however, we did not account for any yearly or monthly explanatory variables.  Obviously, this would lead to predictions that are incorrect and results in large annual residuals.  Now, we will create a new level that predicts these annual residuals.  The variables that could affect this include the average Google hits for the term, "Major Leauge Baseball", the average Google hits from the previous year for each team, how well the team did in the post-season last year, the win percentage of the team from last year, the total attendance from last season, the pre-season odds of winning the World Series, and the payroll for the team at the beginning of the season.  
 
 $$\{\text{Mean google hits this year} \} \sim 
 \{\text{Mean google hits overall} \} + 
@@ -476,8 +476,9 @@ $$\{\text{Mean google hits this year} \} \sim
 \gamma_{1} \{\text{Mean google hits last year}\} +
 \gamma_{2} \{\text{Playoffs last year}\} +
 \gamma_{3} \{\text{Win percent last year}\} +
-\gamma_{4} \{\text{Preseason odds}\} +
-\gamma_{5} \{\text{Preseason payroll}\} +
+\gamma_{4} \{\text{Attendance}\} +
+\gamma_{5} \{\text{Preseason odds}\} +
+\gamma_{6} \{\text{Preseason payroll}\} +
 \epsilon_{ij}
 \; $$
 
@@ -506,13 +507,15 @@ dat <- dat %>%
   )
 ```
 
-The average annual Google hits for the term, "MLB", the average Google hits from last year for each team, being eliminated from the post-season in the Division Series, the total attendance from the previous year, and the pre-season odds for winning the World Series are all significant predictors (p-value < 0.05) of the annual residuals in this model. For every increase in 1 quantile-normalized Google search hit of the term, "MLB", the annual residuals are estimated to increase by 1.809e-01.  For every increase in 1 quantile-normalized Google search hits of a specific team from the previous year, the annual residuals increase by 7.810e-01.  (lag on Lost Quarter need to fix interpretation / more than a team that did not make the playoffs).  For every increase in 1 person in attendance from the previous year, the annual residuals are estimated to decrease by 1.680e-07.  For every increase in 1 unit of odds, the annual residuals are estimated to decrease by 5.822e-06.
+The average annual Google hits for the term, "MLB", the average Google hits from last year for each team, being eliminated from the post-season in the Division Series, the total attendance from the previous year, and the pre-season odds for winning the World Series are all significant predictors (p-value < 0.05) of the annual residuals in this model. For every increase in 1 quantile-normalized Google search hit of the term, "MLB", the annual residuals are estimated to increase by 1.809e-01.  For every increase in 1 quantile-normalized Google search hits of a specific team from the previous year, the annual residuals increase by 7.810e-01.  (lag on Lost Quarter need to fix interpretation / more than a team that did not make the playoffs).  For every increase in 1 person in attendance from the previous year, the annual residuals are estimated to decrease by 1.680e-07.  For every increase in 1 unit of odds, the annual residuals are estimated to decrease by 5.822e-06. (change notation, turn into more real worldy terms)
 
 (having a little hard time interpretting)
 
 
 ### Level 3: Predicted Google hits by month
 
+(now predicted each teams annual average / can't talk about daily)
+(emphasize phase variable)
 The bottom level of the hierarchical model will be affecting the monthly Google hits for each team.  The response variable will now be the residuals from the actual count of Google hits per month and the predicted Google hits from the annual level of the model.  The exogenous variables that will be inputted in this part of the model are variables that are affected by the monthly change.  In our case, we used Google hits for the term "MLB," the quantile-normalized Google hits for each team from the previous year, a variable to indicate the phase of the season, winning percentage, attendance, and how well each team did in the post-season.
 
 (I haven't wrote the model in LateX yet. It should go here.)
@@ -622,6 +625,10 @@ dat %>%
 
 ## Measuring bandwagoning
 
+(just talk about some of the teams)
+(find month where predictions was furthest from the truth / talk about that (Cubs? / might've just been a general interst in baseball))
+(look at stories)
+(2008 Red Sox may be bandwagon)
 
 ## Conclusions
 

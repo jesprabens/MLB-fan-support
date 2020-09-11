@@ -448,7 +448,7 @@ As mentioned, the data was quantile-normalized before construction of the model 
 The highest level of this model focuses on aspects of the MLB teams from our entire time interval of interest, 2004 to 2020. The goal in this level is to predict the average overall Google hits.  Because no annual or monthly variables would be approriate for this level, the only explanatory variable that was included in this part of the model was the TV Market Size for each MLB team.
 
 $$\{\text{Mean google hits overall} \} \sim \{\text{Mean google hits for all teams} \} + \alpha \, \text{\{TV Market Size\}} + \epsilon_{i}$$
-```{r overall model}
+```{r overall model, echo = FALSE}
 # DO WE WANT SUMMARY OUTPUT AND CODE HERE?
 fit_overall <- lm(ghits_overall ~ propTVMarketSize,
                       data = dat_overall)
@@ -464,11 +464,11 @@ dat_annual <- dat_annual %>%
     resid_annual = ghits_annual - pred_overall
   )
 ```
-The summary of this model gave us a p-value of 0.000347  for TV Market Size, which indicates that it does affect the overall mean Google hits for MLB teams.  In fact, it estimates that for every increase in 100,000 people in TV Market Size, the overall mean Google hits will increase by 0.04346 for each MLB team.  This will affect teams with bigger TV Market Sizes differently than less popular teams with smaller TV Market Sizes.  For example, the New York Yankees had the highest TV Market size of 3,922,919 while the Oakland Athletics had the smallest TV Markest size of 584,607.  Evidently, 
+The summary of this model gave us a p-value of 0.000347  for TV Market Size, which indicates that it does affect the overall mean Google hits for MLB teams.  In fact, it estimates that for every increase in 100,000 people in TV Market Size, the overall mean Google hits will increase by 0.04346 for each MLB team.  This will affect large market teams differently than small market teams.  For example, the New York Yankees had the highest TV Market size of 3,922,919 while the Oakland Athletics had the smallest TV Markest size of 584,607.  Evidently, this can lead to high errors in predicting the Google hits of MLB teams because this these predictions are entirely based on the market size.
 
 ### Level 2: Annual predicted mean
 
-The next level in this model focuses on predicting the annual average Google hits for each MLB team. In the first level of this model, we predicted what the overall Google hits for each MLB team would be; however, we did not account for any yearly or monthly explanatory variables.  Obviously, this would lead to predictions that are incorrect and results in large annual residuals.  Now, we will create a new level that predicts these annual residuals.  The variables that could affect this include the average Google hits for the term, "Major Leauge Baseball", the average Google hits from the previous year for each team, how well the team did in the post-season last year, the win percentage of the team from last year, the total attendance from last season, the pre-season odds of winning the World Series, and the payroll for the team at the beginning of the season.  
+The next level in this model focuses on predicting the annual average Google hits for each MLB team. In the first level of this model, we predicted what the overall Google hits for each MLB team would be; however, we did not account for any yearly or monthly explanatory variables.  As mentioned, this would lead to predictions that are largely incorrect and result in large annual residuals.  Now, we will create a new level that predicts these annual residuals.  The variables that could affect this include the average Google hits for the term, "Major Leauge Baseball", the average Google hits from the previous year for each team, how well the team did in the post-season last year, the win percentage of the team from last year, the total attendance from last season, the pre-season odds of winning the World Series, and the payroll for the team at the beginning of the season.  
 
 $$\{\text{Mean google hits this year} \} \sim 
 \{\text{Mean google hits overall} \} + 
@@ -482,11 +482,11 @@ $$\{\text{Mean google hits this year} \} \sim
 \epsilon_{ij}
 \; $$
 
-```{r annual model}
+```{r annual model, echo = FALSE}
 # DO WE WANT SUMMARY OUTPUT AND CODE HERE?
 fit_annual <- lm(resid_annual ~ mlb_annual + 
                    lag(ghits_annual) + 
-                   lag(playoffs) + lag(winpct) + lag(attendance) +
+                   relevel(lag(playoffs), ref = "No Playoffs") + lag(winpct) + lag(attendance) +
                    odds + payroll,
                       data = dat_annual) 
 
@@ -507,7 +507,7 @@ dat <- dat %>%
   )
 ```
 
-The average annual Google hits for the term, "MLB", the average Google hits from last year for each team, being eliminated from the post-season in the Division Series, the total attendance from the previous year, and the pre-season odds for winning the World Series are all significant predictors (p-value < 0.05) of the annual residuals in this model. For every increase in 1 quantile-normalized Google search hit of the term, "MLB", the annual residuals are estimated to increase by 1.809e-01.  For every increase in 1 quantile-normalized Google search hits of a specific team from the previous year, the annual residuals increase by 7.810e-01.  (lag on Lost Quarter need to fix interpretation / more than a team that did not make the playoffs).  For every increase in 1 person in attendance from the previous year, the annual residuals are estimated to decrease by 1.680e-07.  For every increase in 1 unit of odds, the annual residuals are estimated to decrease by 5.822e-06. (change notation, turn into more real worldy terms)
+The average annual Google hits for the term, "MLB", the average Google hits from last year for each team, being eliminated from the post-season in the Division Series, the total attendance from the previous year, and the pre-season odds for winning the World Series are all significant predictors (p-value < 0.05) of the annual residuals in this model. For every increase in 1 Google search hit of the term, "MLB", the annual residuals are estimated to increase by 0.1809.  For every increase in 1 Google search hit of a specific team from the previous year, the annual residuals increase by 0.7810.  (lag on Lost Quarter need to fix interpretation / more than a team that did not make the playoffs). For MLB teams that did not make the playoffs last year,  For every increase in 1 person in attendance from the previous year, the annual residuals are estimated to decrease by 1.680e-07.  For every increase in 1 unit of odds, the annual residuals are estimated to decrease by 5.822e-06. (change notation, turn into more real worldy terms)
 
 (having a little hard time interpretting)
 

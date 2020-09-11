@@ -464,7 +464,7 @@ dat_annual <- dat_annual %>%
     resid_annual = ghits_annual - pred_overall
   )
 ```
-The summary of this model gave us a p-value of 0.000347  for TV Market Size, which indicates that it does affect the overall mean Google hits for MLB teams.  In fact, it estimates that for every increase in 100,000 people in TV Market Size, the overall mean Google hits will increase by 0.04346 for each MLB team.  This will affect teams with bigger TV Market Sizes differently than less popular teams with smaller TV Market Sizes.  For example, 
+The summary of this model gave us a p-value of 0.000347  for TV Market Size, which indicates that it does affect the overall mean Google hits for MLB teams.  In fact, it estimates that for every increase in 100,000 people in TV Market Size, the overall mean Google hits will increase by 0.04346 for each MLB team.  This will affect teams with bigger TV Market Sizes differently than less popular teams with smaller TV Market Sizes.  For example, the New York Yankees had the highest TV Market size of 3,922,919 while the Oakland Athletics had the smallest TV Markest size of 584,607.  Evidently, 
 
 ### Level 2: Annual predicted mean
 

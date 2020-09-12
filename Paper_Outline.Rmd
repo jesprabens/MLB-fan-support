@@ -67,9 +67,15 @@ The TV Market Size of each team was also important to create an accurate estimat
 ### Postseason Performance
 Postseason performance is likely to be one of the most, if not the most, valuable exogenous predictors a teams Google search hits. We manually gathered this data using the respective [Wikipedia](https://en.wikipedia.org/wiki/2019_Major_League_Baseball_season#Postseason) page for each MLB postseason.
 
-[small table snippet of dataset]
-```{r, echo = FALSE}
+Here is a snippet of the first 10 rows of the complete dataset.
+```{r dataset first ten, echo = FALSE}
 head(read.csv("MLB_combined.csv"), 10)
+```
+
+Here are 10 random rows from the complete dataset in order to get a better idea of what the rest of the dataset looks like.
+```{r datset random ten, echo = FALSE}
+set.seed(1000)
+sample_n(read.csv("MLB_combined.csv"),10)
 ```
 
 
@@ -468,7 +474,7 @@ The summary of this model gave us a p-value of 0.000347  for TV Market Size, whi
 
 ### Level 2: Annual predicted mean
 
-The next level in this model focuses on predicting the annual average Google hits for each MLB team. In the first level of this model, we predicted what the overall Google hits for each MLB team would be; however, we did not account for any yearly or monthly explanatory variables.  As mentioned, this would lead to predictions that are largely incorrect and result in large annual residuals.  Now, we will create a new level that predicts these annual residuals.  The variables that could affect this include the average Google hits for the term, "Major Leauge Baseball", the average Google hits from the previous year for each team, how well the team did in the post-season last year, the win percentage of the team from last year, the total attendance from last season, the pre-season odds of winning the World Series, and the payroll for the team at the beginning of the season.  
+The next level in this model focuses on predicting the annual average Google hits for each MLB team. In the first level of this model, we predicted what the overall Google hits for each MLB team would be; however, we did not account for any annual fluctuations.  As mentioned, this would lead to predictions that are largely incorrect and result in large annual residuals.  Now, we will create a new level that predicts these annual residuals by including exogenous variables that will affect the Google hits of a team during each year. These variables include the average Google hits for the term, "Major Leauge Baseball" for the current year, the average Google hits from the previous year for each team, how well the team did in the post-season last year, the win percentage of the team from last year, the total attendance from last season, the pre-season odds of winning the World Series, and the payroll for the team at the beginning of the season.  
 
 $$\{\text{Mean google hits this year} \} \sim 
 \{\text{Mean google hits overall} \} + 
@@ -507,18 +513,31 @@ dat <- dat %>%
   )
 ```
 
-The average annual Google hits for the term, "MLB", the average Google hits from last year for each team, being eliminated from the post-season in the Division Series, the total attendance from the previous year, and the pre-season odds for winning the World Series are all significant predictors (p-value < 0.05) of the annual residuals in this model. For every increase in 1 Google search hit of the term, "MLB", the annual residuals are estimated to increase by 0.1809.  For every increase in 1 Google search hit of a specific team from the previous year, the annual residuals increase by 0.7810.  (lag on Lost Quarter need to fix interpretation / more than a team that did not make the playoffs). For MLB teams that did not make the playoffs last year,  For every increase in 1 person in attendance from the previous year, the annual residuals are estimated to decrease by 1.680e-07.  For every increase in 1 unit of odds, the annual residuals are estimated to decrease by 5.822e-06. (change notation, turn into more real worldy terms)
+The average annual Google hits for the term, "MLB", for the current year, the average Google hits from last year for each team, being eliminated from the post-season in the Division Series, the total attendance from the previous year, and the pre-season odds for winning the World Series are all significant predictors (p-value < 0.05) of the annual residuals in this model. In other words, they all have significant effects on the annual residuals. 
 
-(having a little hard time interpretting)
+For every increase in 1 Google search hit of the term, "MLB", the annual residuals are estimated to increase by 0.1809.  For every increase in 1 Google search hit of a specific team from the previous year, the annual residuals are expected to increase by 0.7810.  MLB teams that were eliminated in the Division Series during the previous year are expected to have a decrease by 0.1347 in annual residuals compared to teams that did not make the post-season the previous year.  For every increase in 100,000 people in attendance from the previous year, the annual residuals are estimated to decrease by 0.0168.  For every increase in 100,000 odds against winning the World Series, the annual residuals are estimated to decrease by 0.5822. 
+
+Because we accounted for the yearly variables, our predictions are now much more accurate. However, we still haven't considered the monthly fluctuations.  
+
+(TRY MORE REAL WORLDY TERMS)
 
 
 ### Level 3: Predicted Google hits by month
 
-(now predicted each teams annual average / can't talk about daily)
-(emphasize phase variable)
-The bottom level of the hierarchical model will be affecting the monthly Google hits for each team.  The response variable will now be the residuals from the actual count of Google hits per month and the predicted Google hits from the annual level of the model.  The exogenous variables that will be inputted in this part of the model are variables that are affected by the monthly change.  In our case, we used Google hits for the term "MLB," the quantile-normalized Google hits for each team from the previous year, a variable to indicate the phase of the season, winning percentage, attendance, and how well each team did in the post-season.
+The bottom and final level of the hierarchical model will be focusing on the monthly Google hits for each team. As mentioned, we were left with monthly resiudals after our last level and our current goal is to predict these new residuals. The exogenous variables that will be inputted in this part of the model are variables that are affected by the monthly change.  In our model, we used Google hits for the term "MLB," the Google hits for each team from the previous year, a variable to indicate the phase of the season, winning percentage, attendance, and how well each team did in the post-season in the previous year.  The variable, phase, is categorical variable that is split into 4 categories depending on which month it is. The months between November and March are considered the off-season.  April is considered Opening or the start of the season.  The months between May and September are the season. October is considered Post-season or the playoffs.  This is an important variable because one would simply expect more people to be interest in baseball at the beginning of the season, during the season, and then the playoffs rather than the off-season.
 
-(I haven't wrote the model in LateX yet. It should go here.)
+$$\{\text{Mean google hits this month} \} \sim 
+\{\text{Mean google hits this year} \} + 
+\{\text{Mean google hits overall} \} + 
+\gamma_0 \{\text{MLB google hits this month}\} + 
+\gamma_{1} \{\text{Mean google hits last year}\} +
+\gamma_{2} \{\text{Playoffs last year}\} +
+\gamma_{3} \{\text{Win percent last year}\} +
+\gamma_{4} \{\text{Attendance}\} +
+\gamma_{5} \{\text{Preseason odds}\} +
+\gamma_{6} \{\text{Preseason payroll}\} +
+\epsilon_{ij}
+\; $$
 
 ```{r monthly model}
 fit_monthly <- lm(resid ~ mlb_searches + lag(googlehits) + 
@@ -538,12 +557,14 @@ dat <- dat %>%
   )
 ```
 
-From our model, we can see that Google hits for the term "MLB," the quantile-normalized Google hits for each team from the previous year, the phases opening and Post-Season, winning percentage, the phase season interacted with winning percentage, the phase playoffs interacted with attendance, an indicator variable for the playoffs interacted with not making playoffs, an indicator variable for the playoffs interacted with losing in the Wild Card game, an indicator variable for the playoffs interacted with losing in the Division Series, and an indicator variable for the playoffs interacted with losing in the Championship Series. (still need to do interpretations of significant variables, kinda iffy on interpretting interactions and lags right now).
+From our model, we can see that Google hits for the term "MLB" from the current month, the Google hits for each team from the previous month, the phases, Opening, and Post-Season, winning percentage, the phase, Season interacted with winning percentage, the phase, Playoffs interacted with attendance, an indicator variable for whether or not the playoffs are going on interacted with not making playoffs, an indicator variable for whether or not the playoffs are going on interacted with losing in the Wild Card game, an indicator variable for whether or not the playoffs are going on interacted with losing in the Division Series, and an indicator variable for whether or not the playoffs are going on interacted with losing in the Championship Series are all significant predictors of the monthly residuals (p-value < 0.05).  
 
+For every increase in 1 Google hit of the term, "MLB," there is an estimated increase of 0.0444 in the monthly residuals.  For every increase in 1 Google hit of an MLB team from the previous month, there is an estimated increase of 0.0763 in the monthly residuals.  During the opening month of the season, the monthly residuals are estimated to increase by 1.118 more than during the off-season.  During the post-season, the monthly residuals are estimated to increase by 2.016 more than during the off-season. For every increase in 0.1 in winning perentage, there is an estimated decrease of 0.0826 in monthly residuals.  During the season only, an increase in 0.1 in winning percentage is associated with an approximate increase of 0.1704 in monthly residuals compared to the winning percentage during the off-season.  During the post-season only, an increase in 100,000 people in attendance is associated with a 0.0112 decrease in monthly residuals compared to the off-season.  When the post-season is happening, there is an estimated decrease of 1.161 in monthly residuals for a team that is eliminated in the Division Series compared to a team that wins the World Series.  When the post-season is happening, there is an estimated decrease of 0.5187 in monthly residuals for a team that is eliminated in the Championship Series compared to a team that wins the World Series. When the post-season is happening, there is an estimated decrease of 1.560 in monthly residuals for a team that is eliminated in the Wild Card game compared to a team that wins the World Series. When the post-season is happening, there is an estimated decrease of 2.422 in monthly residuals for a team that is not in the post-season compared to a team that wins the World Series.
+
+We have now accounted for the overall, annual, and monthly variables that may affect the Google hits for MLB teams.  Ideally, we would have liked to continue this hierarchical model down to the week or even day; however, Google Trends doesn't have this information at the moment; this left us limited to monthly Google hits.
 
 ## Results
 
-(A few plots and discussion of how well the model fits)
 
 ```{r final resids, echo = FALSE}
 dat %>%
@@ -574,7 +595,7 @@ dat %>%
   theme_minimal() + 
   annotate(geom="text",x=as.Date("2019-03-01"), y=2,label="Actual Google Hits", col = "darkorange", fontface = "bold", size = 3.5) + 
   annotate(geom="text",x=as.Date("2008-03-01"), y=1.6,label="Predicted Google Hits", col = "black", fontface = "bold", size = 3.5) +
-  labs(title = "Predicted vs. Actual Quantile-Normalized Google Hits for SF Giants") + 
+  labs(title = "Predicted vs. Actual Google Hits for SF Giants (2004-2020)") + 
     theme(legend.position = "none",
         panel.grid.major.x = element_blank(),
         panel.grid.minor.x = element_blank(),
@@ -592,7 +613,7 @@ dat %>%
   theme_minimal() + 
   annotate(geom="text",x=as.Date("2014-09-01"), y=2.5,label="Actual Google Hits", col = "dodgerblue", fontface = "bold", size = 3.5) + 
   annotate(geom="text",x=as.Date("2008-03-01"), y=2,label="Predicted Google Hits", col = "black", fontface = "bold", size = 3.5) +
-  labs(title = "Predicted vs. Actual Quantile-Normalized Google Hits for LA Dodgers") + 
+  labs(title = "Predicted vs. Actual Google Hits for LA Dodgers (2004-2020)") + 
     theme(legend.position = "none",
         panel.grid.major.x = element_blank(),
         panel.grid.minor.x = element_blank(),
@@ -610,7 +631,7 @@ dat %>%
   theme_minimal() + 
   annotate(geom="text",x=as.Date("2013-09-01"), y=2.5,label="Actual Google Hits", col = "firebrick2", fontface = "bold", size = 3.5) + 
   annotate(geom="text",x=as.Date("2008-03-01"), y=2,label="Predicted Google Hits", col = "black", fontface = "bold", size = 3.5) +
-  labs(title = "Predicted vs. Actual Quantile-Normalized Google Hits for CHI Cubs") + 
+  labs(title = "Predicted vs. Actual Google Hits for CHI Cubs (2004-2020)") + 
     theme(legend.position = "none",
         panel.grid.major.x = element_blank(),
         panel.grid.minor.x = element_blank(),
@@ -621,7 +642,11 @@ dat %>%
         panel.border = element_rect(colour = "gray80", fill = NA))
 ```
 
-(Discussion)
+Above, we have depicted the final residuals of the Chicago Cubs, San Francisco Giants, and Los Angeles Dodgers. Moreover, we included plots of the predicted and actual Google hits for each of these three teams.
+
+While looking at the plot of the residuals of all three MLB teams, there are several important aspects to point out.  Beginning with the Cubs, it is evident that a majority of the residuals over these 16 years were larger than 0.  This means that our model typically underpredicted the Google hits of the Cubs.
+
+
 
 ## Measuring bandwagoning
 
@@ -634,6 +659,8 @@ dat %>%
 
 
 ## Future Work
+
+In the future, we would like to expand this model-building process to other major sports' leagues across the United States and possibly the world, such as the NFL, NHL, MLS, and European Soccer.  We would expect these findings about bandwagon fans to be similar across the United States; however, we predict that European Soccer has more "true" fans. We are hoping that we can continue to do research like this and determine if there is a difference with determining badnwagon fans here in the United States and in Europe.
 
 
 

@@ -21,7 +21,7 @@ professional sports, including Major League Baseball. (Talk about Past Bandwagon
 Studies?) In this work, we model the Google search hits for MLB teams across a 
 season as a function of team success.  Using a hierarchical time series model, we 
 are able to explore which MLB teams attract the most “bandwagon” fans and when MLB 
-teams are overhypedor underhyped. We defined a “hype” moment as an unusual spike 
+teams are overhyped or underhyped. We defined a “hype” moment as an unusual spike 
 in Google searches at a specific time for a team.  The creation of this model 
 required gathering the Google search hits data from Google Trends for each MLB 
 team and collecting other baseball-related data to be used as exogenous 
@@ -29,7 +29,7 @@ variables. (...More Model Building) (...Results and Conclusion)
 
 # Introduction
 
-[General Stuff about bandwagoning]
+[ADD TO THIS]
 
 The term "Bandwagon" is used in professional sports to refer to fans suddenly
 showing interest in a team when that team achieves success - i.e., "jumping on 
@@ -47,7 +47,7 @@ particular team?
 
 ## The Data
 
-[where did we get it, etc]
+We gathered a variety of variables that would prove to be useful for this model.  We go into more detail about each of the datasets we collected below.
 
 ### Google hits
 In order to measure the "bandwagon" level of MLB fans, we gathered data from Google Trends to depict the popularity of each team.  This data was gathered using the [**gtrendsR**](https://cran.r-project.org/web/packages/gtrendsR/gtrendsR.pdf) package, which automatically pulls the data from the [Google Trends](https://trends.google.com/trends/?geo=US) API.  The units of the Google Trend data are dependent on the maximum of all the Google searches of interest.  Therefore, we went through each team and determined that the Chicago Cubs had the maximum google trend hits; this lead us to gather data for the rest of the MLB teams relative to the Cubs.  We were also able to collect the Google search hits of the term "MLB" using Google Trends.  Moreover, it is important to note that Google Trends has only been keeping track of Google Searches since the beginning of 2004.
@@ -105,16 +105,11 @@ fig1_dat %>%
         panel.border = element_rect(colour = "gray80", fill = NA))
 ```
 
-[Brief discussion: note how there are consistent phases of the season, 
-but success strongly determines size of spike; e.g. Giants won in X years, 
-Dodgers won in Y years]
 
 Here are two Google Trend lines of the San Francisco Giants and Los Angeles Dodgers from 2004 to July of 2020.  Generally, it is evident that there is seasonality.  There are often more Google search hits at the beginning of the season (April) and during the post-season (October); and expectedly, this number drastically drops during the off-season, which is from November to March.  However, there are several out-of-the-ordinary substantial spikes in the last decade for both teams.  These spikes are most strongly influenced by their playoff success.  It is important to note that the San Francisco Giants won the World Series in 2010, 2012, and 2014 while the Dodgers made the World Series in 2017 and 2018, but failed to win. This clearly aligns with these sizable spikes.
 
 
 ### Google Trends Scaling
-
-[The problem of how gtrends reports relative to max value]
 
 The Google Trends data is very useful; however, it can sometimes be hard to interpret because of the units.  Google normalizes the data by dividing each data point by the total searches of the region and time range represented.  In our case, the region is simply the United States and time varies from 2004 to 2020.  These numbers are then put on scale of 0 to 100 relative to the rest of the correponding search terms.  
 
@@ -482,7 +477,7 @@ $$\{\text{Mean google hits this year} \} \sim
 \gamma_{1} \{\text{Mean google hits last year}\} +
 \gamma_{2} \{\text{Playoffs last year}\} +
 \gamma_{3} \{\text{Win percent last year}\} +
-\gamma_{4} \{\text{Attendance}\} +
+\gamma_{4} \{\text{Attendance last year}\} +
 \gamma_{5} \{\text{Preseason odds}\} +
 \gamma_{6} \{\text{Preseason payroll}\} +
 \epsilon_{ij}
@@ -529,13 +524,10 @@ The bottom and final level of the hierarchical model will be focusing on the mon
 $$\{\text{Mean google hits this month} \} \sim 
 \{\text{Mean google hits this year} \} + 
 \{\text{Mean google hits overall} \} + 
-\gamma_0 \{\text{MLB google hits this month}\} + 
-\gamma_{1} \{\text{Mean google hits last year}\} +
-\gamma_{2} \{\text{Playoffs last year}\} +
-\gamma_{3} \{\text{Win percent last year}\} +
-\gamma_{4} \{\text{Attendance}\} +
-\gamma_{5} \{\text{Preseason odds}\} +
-\gamma_{6} \{\text{Preseason payroll}\} +
+\gamma_{0} \{\text{MLB google hits this month}\} + 
+\gamma_{1} \{\text{Mean google hits last month}\} +
+\gamma_{2} \{\text{Phase of the Season * (Winning Percentage + Attendance)}\} +
+\gamma_{3} \{\text{Currently the Playoffs * Playoffs this year}\} +
 \epsilon_{ij}
 \; $$
 
@@ -644,24 +636,68 @@ dat %>%
 
 Above, we have depicted the final residuals of the Chicago Cubs, San Francisco Giants, and Los Angeles Dodgers. Moreover, we included plots of the predicted and actual Google hits for each of these three teams.
 
-While looking at the plot of the residuals of all three MLB teams, there are several important aspects to point out.  Beginning with the Cubs, it is evident that a majority of the residuals over these 16 years were larger than 0.  This means that our model typically underpredicted the Google hits of the Cubs.
+The resiudals of the San Francisco Giants typically fall below 0; however, there are instances before 2010 and after 2016 where the residuals are positive.  Our predictions were fairly close, but we did underpredict the Google hits in the years before 2010 and after 2016.  Between 2010 and 2016, it appears our model overpredicted the Google hits of this team.
 
+While focusing on the residuals of Google hits for the Los Angeles Dodgers, it is important to notice that a majority of the residuals were negative.  This can be seen in the predicted and actual values of Google hits for the Dodgers as well. Often, our model overpredicted the Google hits, with a few spikes in between 2014 and 2017 being small exceptions.
+
+Lastly, it is evident that a majority of the residuals over these 16 years were larger than 0 for the Chicago Cubs.  There were instance in these years in which we overpredicted the Google hits, but our model typically underpredicted the Google hits of the Cubs. 
 
 
 ## Measuring bandwagoning
 
-(just talk about some of the teams)
-(find month where predictions was furthest from the truth / talk about that (Cubs? / might've just been a general interst in baseball))
-(look at stories)
-(2008 Red Sox may be bandwagon)
+```{r, echo = FALSE}
+dat %>%
+  arrange(desc(abs(resid))) %>%
+  select(team, date, resid)
+```
+
+```{r}
+dat %>%
+  filter(team %in% c("Boston Red Sox")) %>%
+  ggplot() +
+  geom_line(aes(x = as.Date(date), y = googlehits), color = "firebrick2") +
+  geom_line(aes(x = as.Date(date), y = pred), color = "black") + 
+  theme_minimal() + 
+  annotate(geom="text",x=as.Date("2013-09-01"), y=2.5,label="Actual Google Hits", col = "firebrick2", fontface = "bold", size = 3.5) + 
+  annotate(geom="text",x=as.Date("2008-03-01"), y=2,label="Predicted Google Hits", col = "black", fontface = "bold", size = 3.5) +
+  labs(title = "Predicted vs. Actual Google Hits for CHI Cubs (2004-2020)") + 
+    theme(legend.position = "none",
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.major.y = element_line(colour = "gray92"),
+        panel.grid.minor.y = element_line(colour = "gray92"),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        panel.border = element_rect(colour = "gray80", fill = NA))
+```
+
+As we mentioned before, bandwagon fans are fans who support a team only when they are winning and then stop supporting them when they are not doing well.  When measuring wich MLB teams attract bandwagon fans, it is important to look at specific moments in time for specific teams.  
+
+The prediction our model made that was the furthest from the actual Google hits was of the Kansas City Royals in October of 2014.  it is important to not that this when the Post-season occurs. In 2013, the Royals finished the regular season with a modest record of 86 wins and 76 losses.  This caused them to finish 3rd in their respective division, the American Leauge Central, and consequently made them miss the Post-season.  Fast forward one year, and they now finished with 89 wins and 73 losses. More importantly, they finished with a good enough record to make it to the Wild Card game against the Oakland Athletics.  the Royals then stormed their way through the Division Series and Champsionship series by sweeping the Los Angeles Angels and Baltimore Orioles and reaching the World Series. The Royals havdn't been feautred in the World Series since 1985; thus the entire United States was likely shocked by their success and decided to google this team.  They ended up losing to the San Francisco Giants in the World Series; hwoever, it captured the eyes of many Americans.  Our model did predict an increase in Google hits for the Royals, but it did underpredict this number due to their unexpected success.
+
+The question of interest approaches here: are these fans that hopped on the bandwagon of the 2014 Kansas City Royals or are they just fans of baseball in general?  In this case, we believe it is safe to say that this is just a moment in which most of America, not just baseball fans, were intrigued by the miraculous run of the Royals.
+
+The Boston Red Sox have been known as one of the most popular teams in history and have also been successful within the last 16 years.  The Red Sox won the Worlds Series in 2004, 2007, 2013, and 2018.  As expected, there is a large spike during October of each of these years.  This is due to the general interest of baseball fans and Americans across the nation.  However, it is important to note that after each of these years, our model underpredicted the Google hits of the Boston Red Sox.  We can likely conclude that these are bandwagon fans that were following the Red Sox just because they won the World Series in the previous year.  When the Red Sox don't make the playoffs, our prediction of Google hits is very close to the actual Google hits.
+
+Let us revert back to our teams of interest: the San Francisco Giants, Los Angeles Dodgers, and The Chicago Cubs. 
+
+For the San Francisco Giants, it is important to note that they won the World Series in 2010, 2012, and 2014.  With no surprise our model predicted, that there would be large spikes during the Post-season monht of October for each of those years.  This is likely due to baseball fans in general or simply fans that tune in just for post-season.  Moreover, there are more Google hits in the years 2011, 2013, 2015, and 2016 than our model predicted.  These may be bandwagon fans that are attracted to the Gianst simply because they were having winning year.
+
+The model for the Los Angeles Dodgers overpredicts for many of their early years and then seems to accurately predict their recent years.  This indicates that the Dodgers haven't gained many bandwagon fans.  They have appeared in the World Series recently in 2017 and 2018, but failed to win it.
+
+Like the Royals, the Chicago Cubs had miraculous Post-season run in 2016 and went on to win the World Series.  Our model predicted that model well because there was largely a spike due to general baseball fans simply being interested in the Post-season.  However, it seems that some bandwagon fans began following the Cubs after 2016 as they were still were still performing well and even made the Post-season in 2017 and 2018.
+
 
 ## Conclusions
+Bandwagon fans are common in all sports throughout the world, and especially in Major League Baseball.  It is simply the nature of some people to support teams that are only doing well.  Our model has helped try to filter out which MLB teams attract the most bandwagon fans. One of the big takeaways is that teams that win the World Series typically have bandwagon fans the year immediately after.  
 
+[ADD ONTO THIS]
 
 ## Future Work
 
-In the future, we would like to expand this model-building process to other major sports' leagues across the United States and possibly the world, such as the NFL, NHL, MLS, and European Soccer.  We would expect these findings about bandwagon fans to be similar across the United States; however, we predict that European Soccer has more "true" fans. We are hoping that we can continue to do research like this and determine if there is a difference with determining badnwagon fans here in the United States and in Europe.
+In the future, we would like to expand this model-building process to other major sports' leagues across the United States and possibly the world, such as the NFL, NHL, MLS, and European Soccer.  We would expect these findings about bandwagon fans to be similar across the United States; however, we predict that European Soccer has more "true" fans. We are hoping that we can continue to do research like this and determine if there is a difference with determining bandwagon fans here in the United States and in Europe.
 
+[FIX THIS UP]
 
 
 

@@ -16,24 +16,25 @@ library(gtrendsR)
 [Abstract]
 “Hopping on the bandwagon” is a familiar phrase used to describe a person that 
 follows a trend, believes in an idea, or supports a team solely because it is 
-becoming popular. The bandwagon effect is very common when describing fans in 
-professional sports, including Major League Baseball. (Talk about Past Bandwagon 
-Studies?) In this work, we model the Google search hits for MLB teams across a 
+becoming popular and successful. The bandwagon effect is very common when describing fans in 
+professional sports, including Major League Baseball. There haven't been similar bandwagon studies in the past.
+In this work, we model the Google search hits for MLB teams across a 
 season as a function of team success.  Using a hierarchical time series model, we 
-are able to explore which MLB teams attract the most “bandwagon” fans and when MLB 
-teams are overhyped or underhyped. We defined a “hype” moment as an unusual spike 
-in Google searches at a specific time for a team.  The creation of this model 
+are able to explore which MLB teams attract the most “bandwagon” fans. The creation of this model 
 required gathering the Google search hits data from Google Trends for each MLB 
 team and collecting other baseball-related data to be used as exogenous 
-variables. (...More Model Building) (...Results and Conclusion)
+variables. The hierarchical model consisted of 3 levels: the highest using overall variables, 
+the middle using annual variables, and the bottom using monthly variables.  
+
 
 # Introduction
 
-[ADD TO THIS]
-
 The term "Bandwagon" is used in professional sports to refer to fans suddenly
 showing interest in a team when that team achieves success - i.e., "jumping on 
-the bandwagon" of the team.  ...
+the bandwagon" of the team. Most sports fans are not fond of bandwagon fans or teams
+that attract many bandwagon fans.  Our goal is to decipher which teams attract
+bandwagon fans and which teams do not; moreover, we want to be able to detect when
+the fans hop on the bandwagons of MLB teams.
 
 
 In this paper, we establish a hierarchical time series model that borrows across
@@ -105,13 +106,12 @@ fig1_dat %>%
         panel.border = element_rect(colour = "gray80", fill = NA))
 ```
 
-
 Here are two Google Trend lines of the San Francisco Giants and Los Angeles Dodgers from 2004 to July of 2020.  Generally, it is evident that there is seasonality.  There are often more Google search hits at the beginning of the season (April) and during the post-season (October); and expectedly, this number drastically drops during the off-season, which is from November to March.  However, there are several out-of-the-ordinary substantial spikes in the last decade for both teams.  These spikes are most strongly influenced by their playoff success.  It is important to note that the San Francisco Giants won the World Series in 2010, 2012, and 2014 while the Dodgers made the World Series in 2017 and 2018, but failed to win. This clearly aligns with these sizable spikes.
 
 
 ### Google Trends Scaling
 
-The Google Trends data is very useful; however, it can sometimes be hard to interpret because of the units.  Google normalizes the data by dividing each data point by the total searches of the region and time range represented.  In our case, the region is simply the United States and time varies from 2004 to 2020.  These numbers are then put on scale of 0 to 100 relative to the rest of the correponding search terms.  
+The Google Trends data is very useful; however, it can sometimes be difficult to interpret because of the units.  Google normalizes the data by dividing each data point by the total searches of the region and time range represented.  In our case, the region is simply the United States and time varies from 2004 to 2020.  These numbers are then put on scale of 0 to 100 relative to the rest of the correponding search terms.  
 
 To illustrate how this process works, there are two plots below: Figure 2a compares just the Los Angeles Dodgers and the San Francisco Giants while Figure 2b only compares the Los Angeles Dodgers and the Chicago Cubs.  In Figure 2a, it is evident that the Dodgers held the most Google hits in October of 2018 hence the spike reaching 100 Google hits.  Every other point is scaled relative to this maximum.  As we can see in Figure 2b, the scale will change for specific teams depending on the maximum.  In this plot, the Cubs now hold the new maximum of 100 in October 2016 because this was the first time they had won the World Series since 1908.  Therefore, they became the most googled team since 2004 resulting in the Dodgers no longer holding the maximum of 100 in this trend.
 
@@ -436,7 +436,7 @@ dat <- dat_annual %>%
 ```
 
 <<<<<<< HEAD
-As mentioned, the data was quantile-normalized before construction of the model began.  For the rest of the this paper, when we mention Google hits, we will be referring to the quantile-normalized Google hits. We proceeded by building a hierarchical model.  A hierarchicacal model consists of multiple levels where each level affects the levels below them.  (BETTER DEFINITION OF HIERARCHICAL MODEL) Considering the structure of our timely data, it made the most logical sense to split this hierarchical model into 3 levels: overall, annual, and monthly. We will go into detail about each level of the model below.
+As mentioned, the data was quantile-normalized before construction of the model began.  For the rest of the this paper, when we mention Google hits, we will be referring to the quantile-normalized Google hits. We proceeded by building a hierarchical model.  A hierarchicacal model consists of data that is clustered at multiple levels and each level affects the levels below them.  Considering the structure of our timely data, it made the most logical sense to split this hierarchical model into 3 levels: overall, annual, and monthly. We will go into detail about each level of the model below.
 
 =======
 (motivation for hierarchical model)

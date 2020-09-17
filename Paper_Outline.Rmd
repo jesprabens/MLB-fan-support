@@ -436,7 +436,7 @@ dat <- dat_annual %>%
 ```
 
 <<<<<<< HEAD
-As mentioned, the data was quantile-normalized before construction of the model began.  For the rest of the this paper, when we mention Google hits, we will be referring to the quantile-normalized Google hits. We proceeded by building a hierarchical model.  A hierarchicacal model consists of data that is clustered at multiple levels and each level affects the levels below them.  Considering the structure of our timely data, it made the most logical sense to split this hierarchical model into 3 levels: overall, annual, and monthly. We will go into detail about each level of the model below.
+As mentioned, the data was quantile-normalized before construction of the model began.  For the rest of the this paper, when we mention Google hits, we will be referring to the quantile-normalized Google hits. We proceeded by building a hierarchical model.  A hierarchicacal model consists of data that is clustered at multiple levels and each level has an influence on the subsequent level.  Considering the structure of our data, it made the most logical sense to split this hierarchical model into 3 levels: overall, annual, and monthly. We will go into detail about each level of the model below.
 
 =======
 (motivation for hierarchical model)
@@ -446,7 +446,7 @@ As mentioned, the data was quantile-normalized before construction of the model 
 
 ### Level 1: Overall predicted mean
 
-The highest level of this model focuses on aspects of the MLB teams from our entire time interval of interest, 2004 to 2020. The goal in this level is to predict the average overall Google hits.  Because no annual or monthly variables would be approriate for this level, the only explanatory variable that was included in this part of the model was the TV Market Size for each MLB team.
+The highest level of this model focuses on aspects of the MLB teams from our entire time interval of interest, 2004 to 2020. The goal in this level is to predict the average overall Google hits without dealing with any aspect of time.  Because no annual or monthly variables would be approriate for this level, the only explanatory variable that was included in this part of the model was the TV Market Size for each MLB team.
 
 $$\{\text{Mean google hits overall} \} \sim \{\text{Mean google hits for all teams} \} + \alpha \, \text{\{TV Market Size\}} + \epsilon_{i}$$
 ```{r overall model, echo = FALSE}
@@ -465,7 +465,7 @@ dat_annual <- dat_annual %>%
     resid_annual = ghits_annual - pred_overall
   )
 ```
-The summary of this model gave us a p-value of 0.000347  for TV Market Size, which indicates that it does affect the overall mean Google hits for MLB teams.  In fact, it estimates that for every increase in 100,000 people in TV Market Size, the overall mean Google hits will increase by 0.04346 for each MLB team.  This will affect large market teams differently than small market teams.  For example, the New York Yankees had the highest TV Market size of 3,922,919 while the Oakland Athletics had the smallest TV Markest size of 584,607.  Evidently, this can lead to high errors in predicting the Google hits of MLB teams because this these predictions are entirely based on the market size.
+The summary of this model gave us a p-value of 0.000347  for TV Market Size, which indicates that it does affect the overall mean Google hits for MLB teams.  In fact, it estimates that for every increase in 100,000 people in TV Market Size, the overall average Google hits will increase by 0.04346 for each MLB team.  Noticeably, this will affect large market teams much differently than small market teams.  For example, the New York Yankees had the highest TV Market size of 3,922,919 while the Oakland Athletics had the smallest TV Markest size of 584,607.  Evidently, this will lead to high errors in predicting the Google hits of MLB teams because this these predictions are entirely based on the market size.
 
 ### Level 2: Annual predicted mean
 
@@ -510,16 +510,14 @@ dat <- dat %>%
 
 The average annual Google hits for the term, "MLB", for the current year, the average Google hits from last year for each team, being eliminated from the post-season in the Division Series, the total attendance from the previous year, and the pre-season odds for winning the World Series are all significant predictors (p-value < 0.05) of the annual residuals in this model. In other words, they all have significant effects on the annual residuals. 
 
-For every increase in 1 Google search hit of the term, "MLB", the annual residuals are estimated to increase by 0.1809.  For every increase in 1 Google search hit of a specific team from the previous year, the annual residuals are expected to increase by 0.7810.  MLB teams that were eliminated in the Division Series during the previous year are expected to have a decrease by 0.1347 in annual residuals compared to teams that did not make the post-season the previous year.  For every increase in 100,000 people in attendance from the previous year, the annual residuals are estimated to decrease by 0.0168.  For every increase in 100,000 odds against winning the World Series, the annual residuals are estimated to decrease by 0.5822. 
+For every increase in 1 Google search hit of the term, "MLB", the annual residuals are estimated to increase by 0.1809.  For every increase in 1 Google search hit of a specific team from the previous year, the annual residuals are expected to increase by 0.7810 for that team.  MLB teams that were eliminated in the Division Series during the previous year are expected to have a decrease by 0.1347 in annual residuals compared to teams that did not make the post-season the previous year.  For every increase in 100,000 people in attendance from the previous year, the annual residuals are estimated to decrease by 0.0168.  For every increase in 100,000 odds against winning the World Series, the annual residuals are estimated to decrease by 0.5822. 
 
-Because we accounted for the yearly variables, our predictions are now much more accurate. However, we still haven't considered the monthly fluctuations.  
-
-(TRY MORE REAL WORLDY TERMS)
+As we can see, adding these the yearly variables helped decrease the inaccuracies of the annual residuals and helped create more accurate predictions. However, we still haven't considered the monthly fluctuations.  
 
 
 ### Level 3: Predicted Google hits by month
 
-The bottom and final level of the hierarchical model will be focusing on the monthly Google hits for each team. As mentioned, we were left with monthly resiudals after our last level and our current goal is to predict these new residuals. The exogenous variables that will be inputted in this part of the model are variables that are affected by the monthly change.  In our model, we used Google hits for the term "MLB," the Google hits for each team from the previous year, a variable to indicate the phase of the season, winning percentage, attendance, and how well each team did in the post-season in the previous year.  The variable, phase, is categorical variable that is split into 4 categories depending on which month it is. The months between November and March are considered the off-season.  April is considered Opening or the start of the season.  The months between May and September are the season. October is considered Post-season or the playoffs.  This is an important variable because one would simply expect more people to be interest in baseball at the beginning of the season, during the season, and then the playoffs rather than the off-season.
+The bottom and final level of the hierarchical model will be focusing on the monthly Google hits for each team. As mentioned, we were left with monthly resiudals after our last level; our current goal is to predict these new residuals. The exogenous variables that will be inputted in this part of the model are variables that will change monthly.  In our model, we used Google hits for the term "MLB," the Google hits for each team from the previous year, a variable to indicate the phase of the season, winning percentage, attendance, and how well each team did in the post-season in the previous year.  The variable, phase, is a categorical variable that is split into 4 categories depending on which month it is. The months between November and March are considered the off-season.  April is considered the opening day or the start of the season.  The months between May and September are when the season is actually happening. October is considered the post-season or the playoffs.  This is an important variable because people simply expect more popularity in baseball during the post-season.
 
 $$\{\text{Mean google hits this month} \} \sim 
 \{\text{Mean google hits this year} \} + 

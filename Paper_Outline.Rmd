@@ -5,26 +5,29 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE)
 ```
 
-```{r}
+```{r, include = FALSE}
 library(tidyverse)
 library(gtrendsR)
+library(modelr)
 ```
 
-[Abstract]
+# Abstract
+
 “Hopping on the bandwagon” is a familiar phrase used to describe a person that 
 follows a trend, believes in an idea, or supports a team solely because it is 
-becoming popular and successful. The bandwagon effect is very common when describing fans in 
-professional sports, including Major League Baseball. There haven't been similar bandwagon studies in the past.
-In this work, we model the Google search hits for MLB teams across a 
-season as a function of team success.  Using a hierarchical time series model, we 
-are able to explore which MLB teams attract the most “bandwagon” fans. The creation of this model 
-required gathering the Google search hits data from Google Trends for each MLB 
-team and collecting other baseball-related data to be used as exogenous 
-variables. The hierarchical model consisted of 3 levels: the highest using overall variables, 
-the middle using annual variables, and the bottom using monthly variables.  
+becoming popular and successful. The bandwagon effect is very common when 
+describing fans in professional sports, including Major League Baseball. There 
+haven't been similar bandwagon studies in the past. In this work, we model the 
+Google search hits for MLB teams across a season as a function of team success.  
+Using a hierarchical time series model, we are able to explore which MLB teams 
+attract the most “bandwagon” fans. The creation of this model required gathering 
+the Google search hits data from Google Trends for each MLB team and collecting 
+other baseball-related data to be used as exogenous variables. The hierarchical 
+model consisted of 3 levels: the highest using overall variables, the middle 
+using annual variables, and the bottom using monthly variables.  
 
 
 # Introduction
@@ -33,8 +36,8 @@ The term "Bandwagon" is used in professional sports to refer to fans suddenly
 showing interest in a team when that team achieves success - i.e., "jumping on 
 the bandwagon" of the team. Most sports fans are not fond of bandwagon fans or teams
 that attract many bandwagon fans.  Our goal is to decipher which teams attract
-bandwagon fans and which teams do not; moreover, we want to be able to detect when
-the fans hop on the bandwagons of MLB teams.
+bandwagon fans and which teams do not; moreover, we want to be able to detect exactly 
+when the fans hop on the bandwagons of MLB teams.
 
 
 In this paper, we establish a hierarchical time series model that borrows across
@@ -48,39 +51,71 @@ particular team?
 
 ## The Data
 
-We gathered a variety of variables that would prove to be useful for this model.  We go into more detail about each of the datasets we collected below.
+We gathered a variety of variables that would prove to be useful for this model. 
+We go into more detail about each of the datasets we collected below.
+
 
 ### Google hits
-In order to measure the "bandwagon" level of MLB fans, we gathered data from Google Trends to depict the popularity of each team.  This data was gathered using the [**gtrendsR**](https://cran.r-project.org/web/packages/gtrendsR/gtrendsR.pdf) package, which automatically pulls the data from the [Google Trends](https://trends.google.com/trends/?geo=US) API.  The units of the Google Trend data are dependent on the maximum of all the Google searches of interest.  Therefore, we went through each team and determined that the Chicago Cubs had the maximum google trend hits; this lead us to gather data for the rest of the MLB teams relative to the Cubs.  We were also able to collect the Google search hits of the term "MLB" using Google Trends.  Moreover, it is important to note that Google Trends has only been keeping track of Google Searches since the beginning of 2004.
+In order to measure the "bandwagon" level of MLB fans, we gathered data from Google
+Trends to depict the popularity of each team.  This data was gathered using the 
+[**gtrendsR**](https://cran.r-project.org/web/packages/gtrendsR/gtrendsR.pdf) package,
+which automatically pulls the data from the 
+[Google Trends](https://trends.google.com/trends/?geo=US) API.The units of the Google 
+Trend data are dependent on the maximum of all the Google searches of interest. 
+Therefore, we went through each team and determined that the Chicago Cubs had the maximum 
+google trend hits; this lead us to gather data for the rest of the MLB teams relative
+to the Cubs.  We were also able to collect the Google search hits of the term "MLB" using
+Google Trends.  Moreover, it is important to note that Google Trends has only been keeping
+track of Google Searches since the beginning of 2004.
 
 ### Sports Betting Odds
-The preseason odds dataset was gathered using data from [Sports Odds History](https://www.sportsoddshistory.com/mlb-odds/).  We compiled this data by viewing each teams' odds of winning the World Series from 2004 to the present.  Ideally, we would have like to use monthly odds of winning the World Series for each MLB team; however, this data was not available for every desired year.
+The preseason odds dataset was gathered using data from 
+[Sports Odds History](https://www.sportsoddshistory.com/mlb-odds/).  We compiled this 
+data by viewing each teams' odds of winning the World Series from 2004 to the present.
+Ideally, we would have liked to use monthly odds of winning the World Series for each
+MLB team; however, this data was not available for every desired year.
 
 ### Attendance and Payroll
-We decided that attendence and payroll of each team by season may be valuable exogenous variables that could help determine when fans would become bandwagons.  We gathered this data from [Baseball Reference](https://www.baseball-reference.com/leagues/MLB/2019-misc.shtml) by copying the data from each the years 2004 to 2019.
+We decided that attendence and payroll of each team by season may be valuable exogenous 
+variables that could help determine when fans would become bandwagons.  We gathered this
+data from 
+[Baseball Reference](https://www.baseball-reference.com/leagues/MLB/2019-misc.shtml) by 
+copying the data from each the years 2004 to 2019.
 
 ### Team Performance
-Other exogenous variables we decided would be a valuable predictor in this model was win percentage and whether each team made the playoffs.  We were able to download this data directly from [Sean Lahman's Baseball Database](http://www.seanlahman.com/baseball-archive/statistics/).  This dataset was also filled with other variables such as attendance along with indicators of whether each team won their respective divisions, wild card games, leagues, and the world series.
+Other exogenous variables we decided would be a valuable predictor in this model was win
+percentage and whether each team made the playoffs.  We were able to download this data 
+directly from 
+[Sean Lahman's Baseball Database](http://www.seanlahman.com/baseball-archive/statistics/).  
+This dataset was also filled with other variables such as attendance along with indicators 
+of whether each team won their respective divisions, wild card games, leagues, and the 
+world series.
 
 ### TV Market Size
-The TV Market Size of each team was also important to create an accurate estimation of the number of true fans of each.  We were able to gather this data using the Nielsen Market Size from [Sports Media Watch](https://www.sportsmediawatch.com/nba-market-size-nfl-mlb-nhl-nielsen-ratings/).
+The TV Market Size of each team was also important to create an accurate estimation of 
+the number of true fans of each.  We were able to gather this data using the Nielsen 
+Market Size from [Sports Media Watch](https://www.sportsmediawatch.com/nba-market-size-nfl-mlb-nhl-nielsen-ratings/).
 
 ### Postseason Performance
-Postseason performance is likely to be one of the most, if not the most, valuable exogenous predictors a teams Google search hits. We manually gathered this data using the respective [Wikipedia](https://en.wikipedia.org/wiki/2019_Major_League_Baseball_season#Postseason) page for each MLB postseason.
+Postseason performance is likely to be one of the most, if not the most, valuable exogenous
+predictors a teams Google search hits. We manually gathered this data using the respective 
+[Wikipedia](https://en.wikipedia.org/wiki/2019_Major_League_Baseball_season#Postseason) page
+for each MLB postseason.
 
 Here is a snippet of the first 10 rows of the complete dataset.
+
 ```{r dataset first ten, echo = FALSE}
 head(read.csv("MLB_combined.csv"), 10)
 ```
 
-Here are 10 random rows from the complete dataset in order to get a better idea of what the rest of the dataset looks like.
+Here are 10 random rows from the complete dataset in order to get a better idea of 
+what the rest of the dataset looks like.
+
 ```{r datset random ten, echo = FALSE}
 set.seed(1000)
 sample_n(read.csv("MLB_combined.csv"),10)
 ```
 
-
-Fig 1.
 
 ```{r}
 fig1_dat <- read.csv("combined_data.csv") %>%
@@ -106,16 +141,36 @@ fig1_dat %>%
         panel.border = element_rect(colour = "gray80", fill = NA))
 ```
 
-Here are two Google Trend lines of the San Francisco Giants and Los Angeles Dodgers from 2004 to July of 2020.  Generally, it is evident that there is seasonality.  There are often more Google search hits at the beginning of the season (April) and during the post-season (October); and expectedly, this number drastically drops during the off-season, which is from November to March.  However, there are several out-of-the-ordinary substantial spikes in the last decade for both teams.  These spikes are most strongly influenced by their playoff success.  It is important to note that the San Francisco Giants won the World Series in 2010, 2012, and 2014 while the Dodgers made the World Series in 2017 and 2018, but failed to win. This clearly aligns with these sizable spikes.
+Here are two Google Trend lines of the San Francisco Giants and Los Angeles Dodgers
+from 2004 to July of 2020.  Generally, it is evident that there is seasonality. 
+There are often more Google search hits at the beginning of the season (April) and
+during the postseason (October); and expectedly, this number drastically drops during
+the off-season, which is from November to March.  However, there are several 
+out-of-the-ordinary substantial spikes in the last decade for both teams.  These 
+spikes are most strongly influenced by their playoff success.  It is important to 
+note that the San Francisco Giants won the World Series in 2010, 2012, and 2014 while
+the Dodgers made the World Series in 2017 and 2018, but failed to win. This clearly
+aligns with these sizable spikes.
 
 
 ### Google Trends Scaling
 
-The Google Trends data is very useful; however, it can sometimes be difficult to interpret because of the units.  Google normalizes the data by dividing each data point by the total searches of the region and time range represented.  In our case, the region is simply the United States and time varies from 2004 to 2020.  These numbers are then put on scale of 0 to 100 relative to the rest of the correponding search terms.  
+The Google Trends data is very useful; however, it can sometimes be difficult to interpret
+because of the units.  Google normalizes the data by dividing each data point by the total
+searches of the region and time range represented.  In our case, the region is simply the 
+United States and time varies from 2004 to 2020.  These numbers are then put on scale of 
+0 to 100 relative to the rest of the correponding search terms.  
 
-To illustrate how this process works, there are two plots below: Figure 2a compares just the Los Angeles Dodgers and the San Francisco Giants while Figure 2b only compares the Los Angeles Dodgers and the Chicago Cubs.  In Figure 2a, it is evident that the Dodgers held the most Google hits in October of 2018 hence the spike reaching 100 Google hits.  Every other point is scaled relative to this maximum.  As we can see in Figure 2b, the scale will change for specific teams depending on the maximum.  In this plot, the Cubs now hold the new maximum of 100 in October 2016 because this was the first time they had won the World Series since 1908.  Therefore, they became the most googled team since 2004 resulting in the Dodgers no longer holding the maximum of 100 in this trend.
+To illustrate how this process works, there are two plots below: the first plot compares just 
+the Los Angeles Dodgers and the San Francisco Giants while the second plot only compares the
+Los Angeles Dodgers and the Chicago Cubs.  In the first plot, it is evident that the Dodgers 
+held the most Google hits in October of 2018 hence the spike reaching 100 Google hits.  
+Every other point is scaled relative to this maximum.  As we can see in the second plot, the 
+scale will change for specific teams depending on the maximum.  In this plot, the Cubs 
+now hold the new maximum of 100 in October 2016 because this was the first time they had
+won the World Series since 1908.  Therefore, they became the most googled team since 
+2004 resulting in the Dodgers no longer holding the maximum of 100 in this trend.
 
-Fig 2.
 
 ```{r}
 fig2a_dat <- gtrends(keyword = c("%2Fm%2F04mjl", "%2Fm%2F0713r"),geo = "US", time = "all")$interest_over_time %>%
@@ -186,7 +241,6 @@ that is, a Google Hits measurement of 68 indicates that the team was searched
 Because of the unusual relative scaling of the data, and the magnitude of the
 spikes in interest during the World Series, this data is very skewed.
 
-Fig 3: Histogram of all gtrends obserations.
 
 ```{r}
 fig3_dat <- read.csv("combined_data.csv")
@@ -223,14 +277,16 @@ fig3_dat %>%
 ```
 
 
-As seen in Figures 3a and 3b, the skew is too extreme to address with any common data 
+As seen in the histograms above, the skew is too extreme to address with any common data 
 transformations.  However, we assert that the raw data values are not meaningful in 
 and of themselves, as they correspond to an arbitrary scale set by the most publicized 
 month of baseball during the time window of the data collection.  Therefore, we opted 
 for a data transformation that retains the rank-ordering of the observations, but not the 
-scaling.  Google Hits values were quantile normalized (reference) before model building.
+scaling.  Google Hits values were [quantile normalized](https://davetang.org/muse/2014/07/07/quantile-normalisation-in-r/#:~:text=In%20statistics%2C%20quantile%20normalization%20is,arithmetical%20mean)%20of%20the%20distributions.) before model building.
+
 
 ### Season phases
+
 
 A third challenge of Google Trends as a data source is that data is aggregated
 monthly.  This allows us to track some nuance in annual patterns, but not at
@@ -244,8 +300,6 @@ a variable we call *Phase*.  The season is divided into four phases:
 * *Playoffs*: October
 * *Off-Season:* Nov - March
 
-
-Fig 4
 
 ```{r}
 fig4_dat <- read.csv("plotting_data.csv") %>%
@@ -394,7 +448,18 @@ fig4_dat %>%
 
 ```
 
-MLB teams that have done well since 2004, like the San Francisco Giants, will typically have higher quantile-normalized Google trend hits over the past 5 years than the average MLB team.  Moreover, the Giants had a higher monthly average Google hits than the average team; they even had higher spikes during the post-season because they were very successful during this time.  On the other hand, an MLB team who is less successful, such as the Seattle Mariners, will have lower quantile-normalized Google trends over the past 5 years and a lower monthly average Google hits than the average team.  The Mariners monthly average Google hits also severely drops during the post-season; a large contribution to this is that they have never made the World Series. 
+
+MLB teams that have done well since 2004, like the San Francisco Giants, will 
+typically have higher quantile-normalized Google trend hits over the past 5 
+years than the average MLB team.  Moreover, the Giants had a higher monthly 
+average Google hits than the average team; they even had higher spikes during 
+the postseason because they were very successful during this time.  On the 
+other hand, an MLB team who is less successful, such as the Seattle Mariners,
+will have lower quantile-normalized Google trends over the past 5 years and a
+lower monthly average Google hits than the average team.  The Mariners monthly 
+average Google hits also severely drops during the postseason; a large 
+contribution to this is that they have never made the World Series. 
+
 
 
 ## Model-Building
@@ -435,18 +500,33 @@ dat <- dat_annual %>%
   right_join(dat)
 ```
 
+(?? I'm not sure what this is?)
 <<<<<<< HEAD
-As mentioned, the data was quantile-normalized before construction of the model began.  For the rest of the this paper, when we mention Google hits, we will be referring to the quantile-normalized Google hits. We proceeded by building a hierarchical model.  A hierarchicacal model consists of data that is clustered at multiple levels and each level has an influence on the subsequent level.  Considering the structure of our data, it made the most logical sense to split this hierarchical model into 3 levels: overall, annual, and monthly. We will go into detail about each level of the model below.
-
 =======
-(motivation for hierarchical model)
 >>>>>>> 275f7a8f42a6ea1d64084bd2079cd9b02c1541f2
 
-(for sections below, provide discussion of model in words, and summary of model results)
+
+As mentioned, the data was quantile-normalized before construction of the model
+began.  For the rest of the this paper, when we mention Google hits, we will be
+referring to the quantile-normalized Google hits. We proceeded by building a 
+hierarchical model.  A hierarchicacal model consists of data that is clustered 
+at multiple levels and each level has an influence on the subsequent level. 
+Considering the structure of our data, it made the most logical sense to split 
+this hierarchical model into 3 levels: overall, annual, and monthly. We will 
+go into detail about each level of the model below.
+
+
+
 
 ### Level 1: Overall predicted mean
 
-The highest level of this model focuses on aspects of the MLB teams from our entire time interval of interest, 2004 to 2020. The goal in this level is to predict the average overall Google hits without dealing with any aspect of time.  Because no annual or monthly variables would be approriate for this level, the only explanatory variable that was included in this part of the model was the TV Market Size for each MLB team.
+The highest level of this model focuses on aspects of the MLB teams from our 
+entire time interval of interest, 2004 to 2020. The goal in this level is to 
+predict the average overall Google hits without dealing with any aspect of time.  
+Because no annual or monthly variables would be approriate for this level, the
+only explanatory variable that was included in this part of the model was the 
+TV Market Size for each MLB team.
+
 
 $$\{\text{Mean google hits overall} \} \sim \{\text{Mean google hits for all teams} \} + \alpha \, \text{\{TV Market Size\}} + \epsilon_{i}$$
 ```{r overall model, echo = FALSE}
@@ -465,11 +545,36 @@ dat_annual <- dat_annual %>%
     resid_annual = ghits_annual - pred_overall
   )
 ```
-The summary of this model gave us a p-value of 0.000347  for TV Market Size, which indicates that it does affect the overall mean Google hits for MLB teams.  In fact, it estimates that for every increase in 100,000 people in TV Market Size, the overall average Google hits will increase by 0.04346 for each MLB team.  Noticeably, this will affect large market teams much differently than small market teams.  For example, the New York Yankees had the highest TV Market size of 3,922,919 while the Oakland Athletics had the smallest TV Markest size of 584,607.  Evidently, this will lead to high errors in predicting the Google hits of MLB teams because this these predictions are entirely based on the market size.
+
+
+The summary of this model gave us a p-value of 0.000347 for TV Market Size, 
+which indicates that it does affect the overall mean Google hits for MLB teams. 
+In fact, it estimates that for every increase in 100,000 people in TV Market Size,
+the overall average Google hits will increase by 0.04346 for each MLB team.  
+Naturally, this will affect large market teams much differently than small market 
+teams.  For example, the New York Yankees had the highest TV Market size of 
+3,922,919 while the Oakland Athletics had the smallest TV Markest size of 584,607.  
+This will lead to a much higher prediction of Google hits for the Yankees than the
+Athletics.  Moreover, this will lead to high errors in predicting the Google hits 
+of MLB teams because this these predictions are entirely based on the market size.
+
 
 ### Level 2: Annual predicted mean
 
-The next level in this model focuses on predicting the annual average Google hits for each MLB team. In the first level of this model, we predicted what the overall Google hits for each MLB team would be; however, we did not account for any annual fluctuations.  As mentioned, this would lead to predictions that are largely incorrect and result in large annual residuals.  Now, we will create a new level that predicts these annual residuals by including exogenous variables that will affect the Google hits of a team during each year. These variables include the average Google hits for the term, "Major Leauge Baseball" for the current year, the average Google hits from the previous year for each team, how well the team did in the post-season last year, the win percentage of the team from last year, the total attendance from last season, the pre-season odds of winning the World Series, and the payroll for the team at the beginning of the season.  
+
+The next level in this model focuses on predicting the annual average Google hits 
+for each MLB team. In the first level of this model, we predicted what the overall
+Google hits for each MLB team would be; however, we did not account for any annual 
+fluctuations.  As mentioned, this would lead to predictions that are largely incorrect 
+and result in large annual residuals.  Now, we will create a new level that predicts 
+these annual residuals by including exogenous variables that will affect the Google 
+hits of a team during each year. These variables include the average Google hits for 
+the term, "Major Leauge Baseball" for the current year, the average Google hits from 
+the previous year for each team, how well the team did in last year's postseason, the
+win percentage of the team from last year, the total attendance from last season, the 
+pre-season odds of winning the World Series, and the payroll for the team at the 
+beginning of the season.  
+
 
 $$\{\text{Mean google hits this year} \} \sim 
 \{\text{Mean google hits overall} \} + 
@@ -508,16 +613,46 @@ dat <- dat %>%
   )
 ```
 
-The average annual Google hits for the term, "MLB", for the current year, the average Google hits from last year for each team, being eliminated from the post-season in the Division Series, the total attendance from the previous year, and the pre-season odds for winning the World Series are all significant predictors (p-value < 0.05) of the annual residuals in this model. In other words, they all have significant effects on the annual residuals. 
 
-For every increase in 1 Google search hit of the term, "MLB", the annual residuals are estimated to increase by 0.1809.  For every increase in 1 Google search hit of a specific team from the previous year, the annual residuals are expected to increase by 0.7810 for that team.  MLB teams that were eliminated in the Division Series during the previous year are expected to have a decrease by 0.1347 in annual residuals compared to teams that did not make the post-season the previous year.  For every increase in 100,000 people in attendance from the previous year, the annual residuals are estimated to decrease by 0.0168.  For every increase in 100,000 odds against winning the World Series, the annual residuals are estimated to decrease by 0.5822. 
+The average annual Google hits for the term, "MLB", for the current year, the 
+average Google hits from last year for each team, being eliminated from the 
+postseason in the Division Series, the total attendance from the previous year, 
+and the pre-season odds for winning the World Series are all significant predictors
+(p-value < 0.05) of the annual residuals in this model. In other words, they all 
+have significant effects on the annual residuals. 
 
-As we can see, adding these the yearly variables helped decrease the inaccuracies of the annual residuals and helped create more accurate predictions. However, we still haven't considered the monthly fluctuations.  
+For every increase in 1 Google search hit of the term, "MLB", the annual residuals
+are estimated to increase by 0.1809.  For every increase in 1 Google search hit of
+a specific team from the previous year, the annual residuals are expected to increase
+by 0.7810 for that team.  MLB teams that were eliminated in the Division Series 
+during the past postseason are expected to have a decrease of 0.1347 in annual 
+residuals compared to teams that did not make the postseason the previous year. 
+For every increase in 100,000 people in attendance from the previous year, the annual 
+residuals are estimated to decrease by 0.0168.  For every increase in 100,000 odds 
+against winning the World Series, the annual residuals are estimated to decrease by 
+0.5822. 
+
+As we can see, adding these the yearly variables helped decrease the inaccuracies of
+the annual residuals and helped create more accurate predictions. However, we still 
+haven't considered the monthly fluctuations.  
 
 
 ### Level 3: Predicted Google hits by month
 
-The bottom and final level of the hierarchical model will be focusing on the monthly Google hits for each team. As mentioned, we were left with monthly resiudals after our last level; our current goal is to predict these new residuals. The exogenous variables that will be inputted in this part of the model are variables that will change monthly.  In our model, we used Google hits for the term "MLB," the Google hits for each team from the previous year, a variable to indicate the phase of the season, winning percentage, attendance, and how well each team did in the post-season in the previous year.  The variable, phase, is a categorical variable that is split into 4 categories depending on which month it is. The months between November and March are considered the off-season.  April is considered the opening day or the start of the season.  The months between May and September are when the season is actually happening. October is considered the post-season or the playoffs.  This is an important variable because people simply expect more popularity in baseball during the post-season.
+
+The bottom and final level of the hierarchical model will be focusing on the monthly
+Google hits for each team. As mentioned, we were left with monthly resiudals after our
+last level; our current goal is to predict these new residuals. The exogenous variables
+that will be inputted in this part of the model are variables that will change monthly.
+In our model, we used Google hits for the term "MLB," the Google hits for each team from
+the previous year, a variable to indicate the phase of the season, winning percentage, 
+attendance, and how well each team did in the postseason in the previous year.  The 
+variable, phase, is a categorical variable that is split into 4 categories depending 
+on which month it is. The months between November and March are considered the off-season.
+April is considered the opening day or the start of the season.  The months between May 
+and September are when the season is actually happening. October is considered the 
+postseason or the playoffs.  This is an important variable because people simply expect 
+more popularity in baseball during the postseason.
 
 $$\{\text{Mean google hits this month} \} \sim 
 \{\text{Mean google hits this year} \} + 
@@ -547,11 +682,43 @@ dat <- dat %>%
   )
 ```
 
-From our model, we can see that Google hits for the term "MLB" from the current month, the Google hits for each team from the previous month, the phases, Opening, and Post-Season, winning percentage, the phase, Season interacted with winning percentage, the phase, Playoffs interacted with attendance, an indicator variable for whether or not the playoffs are going on interacted with not making playoffs, an indicator variable for whether or not the playoffs are going on interacted with losing in the Wild Card game, an indicator variable for whether or not the playoffs are going on interacted with losing in the Division Series, and an indicator variable for whether or not the playoffs are going on interacted with losing in the Championship Series are all significant predictors of the monthly residuals (p-value < 0.05).  
+From our model, we can see that Google hits for the term "MLB" from the current 
+month, the Google hits for each team from the previous month, the phases, opening, 
+and postseason, winning percentage, the phase, the season phase interacted with 
+winning percentage, the phase, the postseason interacted with attendance, an indicator 
+variable for whether or not the postseason is going on interacted with not making 
+playoffs, an indicator variable for whether or not the postseason is going on interacted
+with losing in the Wild Card game, an indicator variable for whether or not the 
+postseason is going on interacted with losing in the Division Series, and an indicator 
+variable for whether or not the postseason is going on interacted with losing in the 
+Championship Series are all significant predictors of the monthly residuals (p-value < 0.05).  
 
-For every increase in 1 Google hit of the term, "MLB," there is an estimated increase of 0.0444 in the monthly residuals.  For every increase in 1 Google hit of an MLB team from the previous month, there is an estimated increase of 0.0763 in the monthly residuals.  During the opening month of the season, the monthly residuals are estimated to increase by 1.118 more than during the off-season.  During the post-season, the monthly residuals are estimated to increase by 2.016 more than during the off-season. For every increase in 0.1 in winning perentage, there is an estimated decrease of 0.0826 in monthly residuals.  During the season only, an increase in 0.1 in winning percentage is associated with an approximate increase of 0.1704 in monthly residuals compared to the winning percentage during the off-season.  During the post-season only, an increase in 100,000 people in attendance is associated with a 0.0112 decrease in monthly residuals compared to the off-season.  When the post-season is happening, there is an estimated decrease of 1.161 in monthly residuals for a team that is eliminated in the Division Series compared to a team that wins the World Series.  When the post-season is happening, there is an estimated decrease of 0.5187 in monthly residuals for a team that is eliminated in the Championship Series compared to a team that wins the World Series. When the post-season is happening, there is an estimated decrease of 1.560 in monthly residuals for a team that is eliminated in the Wild Card game compared to a team that wins the World Series. When the post-season is happening, there is an estimated decrease of 2.422 in monthly residuals for a team that is not in the post-season compared to a team that wins the World Series.
+For every increase in 1 Google hit of the term, "MLB," there is an estimated increase 
+of 0.0444 in the monthly residuals.  For every increase in 1 Google hit of an MLB team 
+from the previous month, there is an estimated increase of 0.0763 in the monthly residuals. 
+During the opening month of the season, the monthly residuals are estimated to increase 
+by 1.118 more than during the off-season.  During the postseason, the monthly residuals 
+are estimated to increase by 2.016 more than during the off-season. For every increase in
+0.1 in winning perentage, there is an estimated decrease of 0.0826 in monthly residuals.  
+During the season only, an increase in 0.1 in winning percentage is associated with an 
+approximate increase of 0.1704 in monthly residuals compared to the winning percentage 
+during the off-season.  During the postseason only, an increase in 100,000 people in 
+attendance is associated with a 0.0112 decrease in monthly residuals compared to the off-
+season.  When the postseason is happening, there is an estimated decrease of 1.161 in 
+monthly residuals for a team that is eliminated in the Division Series compared to a team 
+that wins the World Series.  When the postseason is happening, there is an estimated 
+decrease of 0.5187 in monthly residuals for a team that is eliminated in the Championship 
+Series compared to a team that wins the World Series. When the postseason is happening, 
+there is an estimated decrease of 1.560 in monthly residuals for a team that is eliminated
+in the Wild Card game compared to a team that wins the World Series. When the postseason 
+is happening, there is an estimated decrease of 2.422 in monthly residuals for a team that
+is not in the postseason compared to a team that wins the World Series.
 
-We have now accounted for the overall, annual, and monthly variables that may affect the Google hits for MLB teams.  Ideally, we would have liked to continue this hierarchical model down to the week or even day; however, Google Trends doesn't have this information at the moment; this left us limited to monthly Google hits.
+We have now accounted for the overall, annual, and monthly variables that may affect the 
+Google hits for MLB teams.  Ideally, we would have liked to continue this hierarchical 
+model down to the week or even day; however, Google Trends doesn't have this information 
+at the moment; this left us limited to monthly Google hits.
+
 
 ## Results
 
@@ -632,16 +799,27 @@ dat %>%
         panel.border = element_rect(colour = "gray80", fill = NA))
 ```
 
-Above, we have depicted the final residuals of the Chicago Cubs, San Francisco Giants, and Los Angeles Dodgers. Moreover, we included plots of the predicted and actual Google hits for each of these three teams.
+Above, we have depicted the final residuals of the Chicago Cubs, San Francisco Giants, and
+Los Angeles Dodgers. Moreover, we included plots of the predicted and actual Google hits 
+for each of these three teams.
 
-The resiudals of the San Francisco Giants typically fall below 0; however, there are instances before 2010 and after 2016 where the residuals are positive.  Our predictions were fairly close, but we did underpredict the Google hits in the years before 2010 and after 2016.  Between 2010 and 2016, it appears our model overpredicted the Google hits of this team.
+The resiudals of the San Francisco Giants typically fall below 0; however, there are instances
+before 2010 and after 2016 where the residuals are positive.  Our predictions were fairly 
+close, but we did underpredict the Google hits in the years before 2010 and after 2016. 
+Between 2010 and 2016, it appears our model overpredicted the Google hits of this team.
 
-While focusing on the residuals of Google hits for the Los Angeles Dodgers, it is important to notice that a majority of the residuals were negative.  This can be seen in the predicted and actual values of Google hits for the Dodgers as well. Often, our model overpredicted the Google hits, with a few spikes in between 2014 and 2017 being small exceptions.
+While focusing on the residuals of Google hits for the Los Angeles Dodgers, it is important 
+to notice that a majority of the residuals were negative.  This can be seen in the predicted 
+and actual values of Google hits for the Dodgers as well. Often, our model overpredicted the 
+Google hits, with a few spikes in between 2014 and 2017 being small exceptions.
 
-Lastly, it is evident that a majority of the residuals over these 16 years were larger than 0 for the Chicago Cubs.  There were instance in these years in which we overpredicted the Google hits, but our model typically underpredicted the Google hits of the Cubs. 
+Lastly, it is evident that a majority of the residuals over these 16 years were larger than 0 
+for the Chicago Cubs.  There were instance in these years in which we overpredicted the Google
+hits, but our model typically underpredicted the Google hits of the Cubs. 
 
 
 ## Measuring bandwagoning
+
 
 ```{r, echo = FALSE}
 dat %>%
@@ -669,33 +847,78 @@ dat %>%
         panel.border = element_rect(colour = "gray80", fill = NA))
 ```
 
-As we mentioned before, bandwagon fans are fans who support a team only when they are winning and then stop supporting them when they are not doing well.  When measuring wich MLB teams attract bandwagon fans, it is important to look at specific moments in time for specific teams.  
+As we mentioned before, bandwagon fans are fans who support a team only when they are winning 
+and then stop supporting them when they are not doing well.  When measuring wich MLB teams 
+attract bandwagon fans, it is important to look at specific moments in time for specific teams.  
 
-The prediction our model made that was the furthest from the actual Google hits was of the Kansas City Royals in October of 2014.  it is important to not that this when the Post-season occurs. In 2013, the Royals finished the regular season with a modest record of 86 wins and 76 losses.  This caused them to finish 3rd in their respective division, the American Leauge Central, and consequently made them miss the Post-season.  Fast forward one year, and they now finished with 89 wins and 73 losses. More importantly, they finished with a good enough record to make it to the Wild Card game against the Oakland Athletics.  the Royals then stormed their way through the Division Series and Champsionship series by sweeping the Los Angeles Angels and Baltimore Orioles and reaching the World Series. The Royals havdn't been feautred in the World Series since 1985; thus the entire United States was likely shocked by their success and decided to google this team.  They ended up losing to the San Francisco Giants in the World Series; hwoever, it captured the eyes of many Americans.  Our model did predict an increase in Google hits for the Royals, but it did underpredict this number due to their unexpected success.
+The prediction our model made that was the furthest from the actual Google hits was of the 
+Kansas City Royals in October of 2014.  it is important to not that this when the postseason 
+occurs. In 2013, the Royals finished the regular season with a modest record of 86 wins and 
+76 losses.  This caused them to finish 3rd in their respective division, the American Leauge 
+Central, and consequently made them miss the postseason.  Fast forward one year, and they now
+finished with 89 wins and 73 losses. More importantly, they finished with a good enough record
+to make it to the Wild Card game against the Oakland Athletics.  the Royals then stormed their
+way through the Division Series and Champsionship series by sweeping the Los Angeles Angels and
+Baltimore Orioles and reaching the World Series. The Royals havdn't been feautred in the World 
+Series since 1985; thus the entire United States was likely shocked by their success and decided
+to google this team.  They ended up losing to the San Francisco Giants in the World Series; however,
+it captured the eyes of many Americans.  Our model did predict an increase in Google hits for the
+Royals, but it did underpredict this number due to their unexpected success.
 
-The question of interest approaches here: are these fans that hopped on the bandwagon of the 2014 Kansas City Royals or are they just fans of baseball in general?  In this case, we believe it is safe to say that this is just a moment in which most of America, not just baseball fans, were intrigued by the miraculous run of the Royals.
+The question of interest approaches here: are these fans that hopped on the bandwagon of the 2014
+Kansas City Royals or are they just fans of baseball in general?  In this case, we believe it is 
+safe to say that this is just a moment in which most of America, not just baseball fans, were 
+intrigued by the miraculous run of the Royals.
 
-The Boston Red Sox have been known as one of the most popular teams in history and have also been successful within the last 16 years.  The Red Sox won the Worlds Series in 2004, 2007, 2013, and 2018.  As expected, there is a large spike during October of each of these years.  This is due to the general interest of baseball fans and Americans across the nation.  However, it is important to note that after each of these years, our model underpredicted the Google hits of the Boston Red Sox.  We can likely conclude that these are bandwagon fans that were following the Red Sox just because they won the World Series in the previous year.  When the Red Sox don't make the playoffs, our prediction of Google hits is very close to the actual Google hits.
+The Boston Red Sox have been known as one of the most popular teams in history and have also been
+successful within the last 16 years.  The Red Sox won the Worlds Series in 2004, 2007, 2013, and 
+2018.  As expected, there is a large spike during October of each of these years.  This is due to
+the general interest of baseball fans and Americans across the nation.  However, it is important 
+to note that after each of these years, our model underpredicted the Google hits of the Boston Red 
+Sox.  We can likely conclude that these are bandwagon fans that were following the Red Sox just 
+because they won the World Series in the previous year.  When the Red Sox don't make the playoffs, 
+our prediction of Google hits is very close to the actual Google hits.
 
-Let us revert back to our teams of interest: the San Francisco Giants, Los Angeles Dodgers, and The Chicago Cubs. 
+Let us revert back to our teams of interest: the San Francisco Giants, Los Angeles Dodgers, and 
+The Chicago Cubs. 
 
-For the San Francisco Giants, it is important to note that they won the World Series in 2010, 2012, and 2014.  With no surprise our model predicted, that there would be large spikes during the Post-season monht of October for each of those years.  This is likely due to baseball fans in general or simply fans that tune in just for post-season.  Moreover, there are more Google hits in the years 2011, 2013, 2015, and 2016 than our model predicted.  These may be bandwagon fans that are attracted to the Gianst simply because they were having winning year.
+For the San Francisco Giants, it is important to note that they won the World Series in 2010, 2012,
+and 2014.  With no surprise our model predicted, that there would be large spikes during the 
+postseason month of October for each of those years.  This is likely due to baseball fans in general
+or simply fans that tune in just for postseason.  Moreover, there are more Google hits in the years 
+2011, 2013, 2015, and 2016 than our model predicted.  These may be bandwagon fans that are attracted
+to the Gianst simply because they were having winning year.
 
-The model for the Los Angeles Dodgers overpredicts for many of their early years and then seems to accurately predict their recent years.  This indicates that the Dodgers haven't gained many bandwagon fans.  They have appeared in the World Series recently in 2017 and 2018, but failed to win it.
+The model for the Los Angeles Dodgers overpredicts for many of their early years and then seems to
+accurately predict their recent years.  This indicates that the Dodgers haven't gained many bandwagon
+fans.  They have appeared in the World Series recently in 2017 and 2018, but failed to win it.
 
-Like the Royals, the Chicago Cubs had miraculous Post-season run in 2016 and went on to win the World Series.  Our model predicted that model well because there was largely a spike due to general baseball fans simply being interested in the Post-season.  However, it seems that some bandwagon fans began following the Cubs after 2016 as they were still were still performing well and even made the Post-season in 2017 and 2018.
+Like the Royals, the Chicago Cubs had a miraculous postseason run in 2016 and went on to win the 
+World Series.  Our model predicted that model well because there was largely a spike due to general 
+baseball fans simply being interested in the postseason.  However, it seems that some bandwagon fans 
+began following the Cubs after 2016 as they were still were still performing well and even made the 
+postseason in 2017 and 2018.
 
 
 ## Conclusions
-Bandwagon fans are common in all sports throughout the world, and especially in Major League Baseball.  It is simply the nature of some people to support teams that are only doing well.  Our model has helped try to filter out which MLB teams attract the most bandwagon fans. One of the big takeaways is that teams that win the World Series typically have bandwagon fans the year immediately after.  
+Bandwagon fans are common in all sports throughout the world, and especially in Major League Baseball.  
+It is simply the nature of some people to support teams that are only doing well.  It is likely more 
+exciting if a person does this.  Our model has helped try to filter out which MLB teams attract the 
+most bandwagon fans. One of the big takeaways is that teams that win the World Series typically have 
+bandwagon fans the year immediately after.  This is no surprise because this team will likely gain 
+the most exposure to general MLB fans.  This is also true for underdog MLB teams that perform well 
+in the postseason, as we saw with the Royals in 2014.  Teams that typically don't do well in the MLB
+don't gain much traction with bandwagon fans which was expected.
 
-[ADD ONTO THIS]
 
 ## Future Work
 
-In the future, we would like to expand this model-building process to other major sports' leagues across the United States and possibly the world, such as the NFL, NHL, MLS, and European Soccer.  We would expect these findings about bandwagon fans to be similar across the United States; however, we predict that European Soccer has more "true" fans. We are hoping that we can continue to do research like this and determine if there is a difference with determining bandwagon fans here in the United States and in Europe.
-
-[FIX THIS UP]
-
+In the future, we would like to expand this model-building process to other major sports' leagues 
+across the United States, such as the NFL, NHL, NBA, and MLS.  Our ultimate goal would be to create
+a more concrete model where we can decide whether teams attract bandwagon fans or not using a numerical
+standard or criteria rather than simply comparing the residuals at different points in time.  Another 
+addition that we find intriguing would be to use these models on European Soccer as well because we 
+have always had the impression that fans that live in Europe are more faithful to their teams than 
+American sports fans.
 
 
